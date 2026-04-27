@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#7C3AED">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Fiados">
@@ -342,6 +343,8 @@ tr:last-child td{border-bottom:none}
     </div>
     <div class="modal-box-body">
       <div id="recibo-content"></div>
+      <!-- Versión oculta optimizada para impresión térmica 58mm -->
+      <div id="recibo-print" style="position:fixed;left:-9999px;top:0;width:384px;background:#fff;padding:8px 10px;font-family:Georgia,serif;color:#000"></div>
       <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
         <button class="btn btn-primary" style="flex:1;margin-top:0" onclick="descargarRecibo()">Guardar imagen</button>
         <button id="btn-wa-recibo" class="btn" style="flex:1;background:#25D366;color:#fff;margin-top:0" onclick="compartirWA()">WhatsApp</button>
@@ -768,10 +771,10 @@ function verRecibo(cuentaId){
     <div class="rec-titulo">Estado de Cuenta — Fiado</div>
     <hr class="rec-hr">
     <div class="rec-cliente"><strong>Cliente:</strong> ${cli.nombre}.</div>
-    <div class="rec-cuenta-num">Cuenta #${cuenta.numero} · ${cuenta.estado==='pagada'?'Pagada':cuenta.estado==='pendiente'?'Pendiente':'Activa'}</div>
     ${diasHtml}${abHtml}
     <div class="rec-total-wrap"><span class="rec-total-label">Saldo a pagar</span><span class="rec-total-monto">S/ ${fmtNum(cuenta.saldo)}</span></div>
     <div class="rec-gracias">Gracias por su preferencia 🙌</div>`;
+
   document.getElementById('recibo-titulo').textContent=`Recibo — ${cli.nombre} · Cuenta #${cuenta.numero}`;
   document.getElementById('btn-wa-recibo').style.display=cli.telefono?'block':'none';
   document.getElementById('modal-recibo').style.display='flex';
@@ -839,44 +842,87 @@ function renderAnalisis(){
     </div>${detHtml}`;
 }
 // ============================================================
-// IMPRIMIR VÍA RAWBT — envía la imagen del recibo a 384px (58mm)
+// IMPRIMIR VÍA RAWBT — comparte imagen como archivo
 // ============================================================
-async function imprimirRawBT(){
-  showLoading('Preparando ticket...');
-  try {
-    const el = document.getElementById('recibo-content');
+function imprimirRawBT(){
+  const cuenta=cuentas.find(c=>c.id===reciboData.cuentaId);
+  const cli=clientes.find(c=>c.id===cuenta.cliente_id);
 
-    // Renderizar el recibo a imagen con ancho fijo de 384px (ancho real HOIN 58mm)
-    const canvas = await html2canvas(el, {
-      backgroundColor: '#ffffff',
-      scale: 1,
-      width: 384,
-      windowWidth: 384,
-      useCORS: true
+  const W=32, C1=15, C2=16;
+  const sep=(c='-')=>c.repeat(W);
+  const ctr=s=>{s=s.slice(0,W);const p=Math.floor((W-s.length)/2);return ' '.repeat(p)+s;};
+  const lineRL=(l,r)=>{const max=W-r.length-1;return l.slice(0,max).padEnd(max)+' '+r;};
+  const fmtCol=(nombre,precio,colW)=>{
+    const pr='S/'+fmtNum(precio);
+    const max=colW-pr.length-1;
+    return nombre.slice(0,max).padEnd(max)+' '+pr;
+  };
+  const prodRows=(its)=>{
+    const lines=[];
+    for(let i=0;i<its.length;i+=2){
+      const c1=fmtCol(its[i].producto,its[i].precio,C1);
+      const c2=its[i+1]?' '+fmtCol(its[i+1].producto,its[i+1].precio,C2):'';
+      lines.push(c1+c2);
+    }
+    return lines;
+  };
+
+  const vs=visitas.filter(v=>v.cuenta_id===cuenta.id).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+  const pf={};vs.forEach(v=>{(pf[v.fecha]=pf[v.fecha]||[]).push(v);});
+
+  const rows=[];
+  rows.push('');
+  rows.push(ctr('ESTADO DE CUENTA'));
+  rows.push(ctr('--- FIADO ---'));
+  rows.push(sep('-'));
+  rows.push('Cliente : '+cli.nombre);
+  rows.push(sep('-'));
+
+  Object.entries(pf).forEach(([fecha,vsDelDia])=>{
+    const td=vsDelDia.reduce((s,v)=>s+parseFloat(v.total_visita||0),0);
+    rows.push('');
+    rows.push(lineRL(fechaDisplay(fecha),'S/'+fmtNum(td)));
+    rows.push(sep('.'));
+    vsDelDia.forEach((v,idx)=>{
+      const its=items.filter(it=>it.visita_id===v.id);
+      if(vsDelDia.length>1) rows.push(' Visita '+(idx+1)+':');
+      prodRows(its).forEach(r=>rows.push(r));
+      if(vsDelDia.length>1){
+        const sub=its.reduce((s,it)=>s+parseFloat(it.precio||0),0);
+        rows.push(lineRL(' Subtotal','S/'+fmtNum(sub)));
+      }
     });
+  });
 
-    const base64 = canvas.toDataURL('image/png').split(',')[1];
-
-    // RawBT acepta imagen base64 via intent con parámetro img
-    // Construimos el intent como enlace
-    const intentUri = 'rawbt://print?img=' + encodeURIComponent(base64);
-
-    // Android Intent fallback via intent:// scheme
-    const androidIntent = 'intent://print?img=' + encodeURIComponent(base64) +
-      '#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end';
-
-    // Intentar primero rawbt://, si falla usar intent://
-    const a = document.createElement('a');
-    a.href = intentUri;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    showToast('Enviando imagen a RawBT...');
-  } catch(e) {
-    showToast('Error: ' + e.message);
+  const pg=pagos.filter(p=>p.cuenta_id===cuenta.id);
+  if(pg.length){
+    rows.push('');rows.push(sep('-'));
+    rows.push(ctr('ABONOS'));
+    pg.forEach(p=>rows.push(lineRL(fechaDisplay(p.fecha)+(p.nota?' ('+p.nota+')':''),'-S/'+fmtNum(p.monto))));
   }
-  hideLoading();
+
+  rows.push('');rows.push(sep('='));
+  rows.push(lineRL('SALDO A PAGAR','S/'+fmtNum(cuenta.saldo)));
+  rows.push(sep('='));
+  rows.push('');
+  rows.push(ctr('Gracias por su preferencia'));
+  rows.push('');rows.push('');
+
+  const texto=rows.join('\n');
+  if(navigator.share){
+    navigator.share({title:'Ticket — '+cli.nombre, text:texto})
+      .then(()=>showToast('Selecciona RawBT'))
+      .catch(e=>{ if(e.name!=='AbortError') showToast('Error: '+e.message); });
+  } else {
+    const blob=new Blob([texto],{type:'text/plain'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='ticket.prn';
+    document.body.appendChild(a);a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Abre el archivo en RawBT');
+  }
 }
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
