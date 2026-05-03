@@ -476,7 +476,7 @@ async function registrarFiado(){
     bloque.querySelectorAll('.item-row').forEach(row=>{
       const[ip,ipr]=row.querySelectorAll('input');
       const prod=cap(ip.value.trim()),prec=parseFloat(ipr.value)||0;
-      if(prod&&prec>0)its.push({producto:prod,precio:prec});
+      if(prod&&prec!==0)its.push({producto:prod,precio:prec});
     });
     if(its.length>0)visitasData.push({items:its,total_visita:its.reduce((s,it)=>s+it.precio,0)});
   }
@@ -718,7 +718,7 @@ function addEditItem(it=null){
 function recalcEditTotal(){let t=0;document.querySelectorAll('#edit-items-container input[type=number]').forEach(i=>t+=parseFloat(i.value)||0);document.getElementById('edit-total-display').textContent=fmt(t);}
 async function guardarEdit(){
   const vid=parseInt(document.getElementById('edit-visita-id').value),cid=parseInt(document.getElementById('edit-cuenta-id').value),fecha=document.getElementById('edit-fecha').value;
-  const ni=[];document.querySelectorAll('#edit-items-container .item-row').forEach(row=>{const[ip,ipr]=row.querySelectorAll('input');const prod=cap(ip.value.trim()),prec=parseFloat(ipr.value)||0;if(prod&&prec>0)ni.push({producto:prod,precio:prec});});
+  const ni=[];document.querySelectorAll('#edit-items-container .item-row').forEach(row=>{const[ip,ipr]=row.querySelectorAll('input');const prod=cap(ip.value.trim()),prec=parseFloat(ipr.value)||0;if(prod&&prec!==0)ni.push({producto:prod,precio:prec});});
   if(!ni.length){alert('Agrega al menos un producto');return;}
   const nt=ni.reduce((s,it)=>s+it.precio,0),ta=parseFloat(visitas.find(v=>v.id===vid)?.total_visita||0);
   showLoading('Guardando...');setSync('loading');
