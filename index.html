@@ -522,7 +522,7 @@ function renderClientes(){
         <div class="cliente-avatar" style="background:${colorAvatar(c.nombre)}">${c.nombre.charAt(0).toUpperCase()}</div>
         <div class="cliente-info">
           <div class="cliente-name">${c.nombre} ${alerta}</div>
-          <div class="cliente-meta">${nc} cuenta${nc!==1?'s':''} · ${c.telefono?'📱 '+c.telefono:'Sin teléfono'}</div>
+          <div class="cliente-meta">${c.telefono?'📱 '+c.telefono:'Sin teléfono'}</div>
         </div>
         <div class="cliente-deuda"><div class="deuda-monto">${fmt(saldo)}</div><div class="deuda-label">saldo total</div></div>
       </div>
@@ -536,45 +536,18 @@ function renderClientes(){
   }).join('');
 }
 function renderCuentasCliente(cliId){
-  // Solo mostrar cuentas activas y pendientes — las pagadas no se renderizan
   const cc=cuentas.filter(c=>c.cliente_id===cliId&&(c.estado==='activa'||c.estado==='pendiente')).sort((a,b)=>b.numero-a.numero);
-  if(!cc.length)return '<p class="empty" style="padding:1rem">Sin cuentas activas</p>';
-  return cc.map(cuenta=>{
-    const esA=cuenta.estado==='activa';
-    const esPend=cuenta.estado==='pendiente';
-    const estadoLabel=esA?'Activa':esPend?'Pendiente':'';
-    const estadoClass=esA?'activa':esPend?'pendiente':'';
-    const pct=cuenta.total_fiado>0?Math.min(100,(parseFloat(cuenta.monto_abonado||0)/parseFloat(cuenta.total_fiado))*100):0;
-    const pg=pagos.filter(p=>p.cuenta_id===cuenta.id);
-    const progressHtml=parseFloat(cuenta.monto_abonado||0)>0?`
-      <div class="progress-wrap">
-        <div class="progress-labels"><span>Abonado ${fmt(cuenta.monto_abonado)}</span><span>${Math.round(pct)}%</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <div class="progress-labels"><span></span><span>Total ${fmt(cuenta.total_fiado)}</span></div>
-      </div>`:'';
-    const abonosHtml=pg.length?`
-      <div style="padding:6px 14px 8px;border-bottom:0.5px solid var(--border)">
-        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">Abonos</div>
-        ${pg.map(p=>`<div class="abono-row"><div><span class="abono-fecha">${fechaDisplay(p.fecha)}</span>${p.nota?`<div class="abono-nota">${p.nota}</div>`:''}</div><span class="abono-monto">− ${fmt(p.monto)}</span></div>`).join('')}
-      </div>`:'';
-    return `<div class="cuenta-block">
-      <div class="cuenta-header" onclick="toggleCuenta(${cuenta.id})">
-        <div>
-          <div class="cuenta-num">Cuenta #${cuenta.numero}<span class="cuenta-estado ${estadoClass}">${estadoLabel}</span></div>
-          <div class="cuenta-resumen">${visitas.filter(v=>v.cuenta_id===cuenta.id).length} visitas · Fiado ${fmt(cuenta.total_fiado)}</div>
-        </div>
-        <div class="cuenta-saldo"><div class="cuenta-saldo-monto ${parseFloat(cuenta.saldo||0)>0?'positivo':'saldado'}">${fmt(cuenta.saldo)}</div><div style="font-size:10px;color:var(--text3)">saldo</div></div>
-      </div>
-      <div class="cuenta-body" id="cuenta-body-${cuenta.id}">
-        ${progressHtml}${abonosHtml}
+  if(!cc.length)return '<p class="empty" style="padding:1rem">Sin movimientos</p>';
+  return cc.map(cuenta=>`
+    <div class="cuenta-block">
+      <div class="cuenta-body" id="cuenta-body-${cuenta.id}" style="display:block">
         ${renderVisitasCuenta(cuenta.id)}
         <div class="cuenta-footer">
-          ${esA||esPend?`<button class="btn-abonar" onclick="abrirModalAbonar(${cuenta.id})">💰 Abonar</button>`:''}
           <button class="btn-receipt" onclick="verRecibo(${cuenta.id})">🧾 Recibo</button>
+          <button class="btn-pay" onclick="marcarPagado(${cuenta.cliente_id})">✓ Pagado</button>
         </div>
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
 function renderVisitasCuenta(cuentaId){
   const vs=visitas.filter(v=>v.cuenta_id===cuentaId).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
@@ -675,6 +648,23 @@ async function registrarAbono(){
     setSync('on');
     showToast(nuevoEstado==='pagada'?'✓ Cuenta pagada completamente':'✓ Abono registrado — nueva cuenta activa creada');
     cerrarModal('modal-abonar');renderClientes();updateHeader();
+  }catch(e){setSync('off');showToast('Error: '+e.message);}
+  hideLoading();
+}
+async function marcarPagado(clienteId){
+  const cli=clientes.find(c=>c.id===clienteId);
+  if(!confirm(`¿Marcar a ${cli.nombre} como pagado?`))return;
+  showLoading('Registrando...');setSync('loading');
+  try{
+    await sbFetch(`clientes?id=eq.${clienteId}`,'PATCH',{estado:'pagado'});
+    cli.estado='pagado';
+    const cc=cuentas.filter(c=>c.cliente_id===clienteId&&c.estado==='activa');
+    for(const c of cc){
+      await sbFetch(`cuentas?id=eq.${c.id}`,'PATCH',{estado:'pagada'});
+      c.estado='pagada';
+    }
+    setSync('on');showToast('✓ '+cli.nombre+' marcado como pagado');
+    renderClientes();updateHeader();
   }catch(e){setSync('off');showToast('Error: '+e.message);}
   hideLoading();
 }
