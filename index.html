@@ -808,28 +808,64 @@ function getRango(){
 function renderAnalisis(){
   const{desde,hasta}=getRango();
   const vf=visitas.filter(v=>v.fecha>=desde&&v.fecha<=hasta);
-  const pf=pagos.filter(p=>p.fecha>=desde&&p.fecha<=hasta);
   const tf=vf.reduce((s,v)=>s+parseFloat(v.total_visita||0),0);
-  const tc=pf.reduce((s,p)=>s+parseFloat(p.monto||0),0);
-  const pd={};
-  vf.forEach(v=>{if(!pd[v.fecha])pd[v.fecha]={fiado:0,nv:0};pd[v.fecha].fiado+=parseFloat(v.total_visita||0);pd[v.fecha].nv++;});
-  pf.forEach(p=>{if(!pd[p.fecha])pd[p.fecha]={fiado:0,nv:0};pd[p.fecha].cobrado=(pd[p.fecha].cobrado||0)+parseFloat(p.monto||0);});
-  const dias=Object.entries(pd).sort((a,b)=>b[0].localeCompare(a[0]));
-  const detHtml=dias.length?`<div class="analisis-table"><table>
-    <thead><tr><th>Fecha</th><th>Visitas</th><th style="text-align:right">Fiado</th><th style="text-align:right">Cobrado</th></tr></thead>
-    <tbody>${dias.map(([fecha,d])=>`<tr>
-      <td style="font-family:var(--num)">${fechaDisplay(fecha)}</td>
-      <td style="color:var(--text2)">${d.nv}</td>
-      <td style="text-align:right;color:var(--red);font-family:var(--num);font-weight:600">${fmt(d.fiado)}</td>
-      <td style="text-align:right;color:var(--green);font-family:var(--num);font-weight:600">${d.cobrado?fmt(d.cobrado):'—'}</td>
-    </tr>`).join('')}</tbody></table></div>`:'<p class="empty">Sin movimientos en este período</p>';
+
+  // Agrupar visitas por fecha, ordenadas más reciente primero
+  const porFecha={};
+  vf.forEach(v=>{(porFecha[v.fecha]=porFecha[v.fecha]||[]).push(v);});
+  const diasOrdenados=Object.entries(porFecha).sort((a,b)=>b[0].localeCompare(a[0]));
+
+  const detHtml=diasOrdenados.length ? diasOrdenados.map(([fecha,vsDelDia])=>{
+    const totalDia=vsDelDia.reduce((s,v)=>s+parseFloat(v.total_visita||0),0);
+
+    // Ordenar visitas por cliente nombre
+    const vsOrdenadas=[...vsDelDia].sort((a,b)=>{
+      const ca=clientes.find(c=>c.id===(cuentas.find(cc=>cc.id===a.cuenta_id)||{}).cliente_id);
+      const cb=clientes.find(c=>c.id===(cuentas.find(cc=>cc.id===b.cuenta_id)||{}).cliente_id);
+      return (ca?.nombre||'').localeCompare(cb?.nombre||'');
+    });
+
+    const visitasHtml=vsOrdenadas.map(v=>{
+      const cuenta=cuentas.find(c=>c.id===v.cuenta_id);
+      const cli=cuenta?clientes.find(c=>c.id===cuenta.cliente_id):null;
+      const its=items.filter(it=>it.visita_id===v.id);
+      const itsHtml=its.map(it=>
+        `<div class="visita-item-line"><span>${it.producto}</span><span>${fmt(it.precio)}</span></div>`
+      ).join('');
+      return `
+        <div class="visita-row">
+          <div class="visita-row-header" onclick="toggleVI('av-${v.id}')">
+            <div>
+              <div class="visita-label-txt" style="font-size:13px;font-weight:700">${cli?cli.nombre:'—'}</div>
+              <div class="visita-nprod">${its.length} producto${its.length!==1?'s':''} — toca para ver</div>
+            </div>
+            <span class="visita-monto">${fmt(v.total_visita)}</span>
+          </div>
+          <div class="visita-items-list" id="av-${v.id}">${itsHtml}</div>
+          <div class="visita-edit-bar">
+            <button class="btn-sm" onclick="abrirModalEdit(${v.id},${v.cuenta_id})">✎ Editar</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="cliente-card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border)">
+          <span style="font-size:13px;font-weight:700;font-family:var(--num)">${fechaDisplay(fecha)}</span>
+          <span style="font-size:13px;font-weight:700;color:var(--red);font-family:var(--num)">${fmt(totalDia)}</span>
+        </div>
+        ${visitasHtml}
+      </div>`;
+  }).join('') : '<p class="empty">Sin movimientos en este período</p>';
+
   document.getElementById('analisis-content').innerHTML=`
     <div class="stat-grid">
       <div class="stat-card"><div class="stat-label">Total fiado</div><div class="stat-value red">${fmt(tf)}</div></div>
-      <div class="stat-card"><div class="stat-label">Total cobrado</div><div class="stat-value green">${fmt(tc)}</div></div>
       <div class="stat-card"><div class="stat-label">Visitas</div><div class="stat-value purple">${vf.length}</div></div>
-      <div class="stat-card"><div class="stat-label">Cuentas activas</div><div class="stat-value amber">${cuentas.filter(c=>c.estado==='activa').length}</div></div>
-    </div>${detHtml}`;
+      <div class="stat-card"><div class="stat-label">Clientes activos</div><div class="stat-value amber">${cuentas.filter(c=>c.estado==='activa').length}</div></div>
+      <div class="stat-card"><div class="stat-label">Días con fiado</div><div class="stat-value" style="color:var(--blue)">${diasOrdenados.length}</div></div>
+    </div>
+    ${detHtml}`;
 }
 // ============================================================
 // IMPRIMIR VÍA RAWBT — comparte imagen como archivo
