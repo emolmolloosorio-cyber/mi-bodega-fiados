@@ -395,13 +395,14 @@ function swTab(n){
   if(n==='analisis')renderAnalisis();
 }
 async function sbFetch(path,method='GET',body=null){
-  const opts={method,headers:{
+  const headers={
     'apikey':SB_KEY,
     'Authorization':'Bearer '+SB_KEY,
     'Content-Type':'application/json',
-    'Prefer':'return=representation',
-    'Range':'0-9999'
-  }};
+    'Prefer':'return=representation'
+  };
+  if(method==='GET') headers['Range']='0-9999';
+  const opts={method,headers};
   if(body)opts.body=JSON.stringify(body);
   const res=await fetch(SB_URL+'/rest/v1/'+path,opts);
   if(!res.ok){const e=await res.text();throw new Error(e);}
