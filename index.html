@@ -395,7 +395,13 @@ function swTab(n){
   if(n==='analisis')renderAnalisis();
 }
 async function sbFetch(path,method='GET',body=null){
-  const opts={method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'}};
+  const opts={method,headers:{
+    'apikey':SB_KEY,
+    'Authorization':'Bearer '+SB_KEY,
+    'Content-Type':'application/json',
+    'Prefer':'return=representation',
+    'Range':'0-9999'
+  }};
   if(body)opts.body=JSON.stringify(body);
   const res=await fetch(SB_URL+'/rest/v1/'+path,opts);
   if(!res.ok){const e=await res.text();throw new Error(e);}
@@ -409,7 +415,7 @@ async function init(){
       sbFetch('clientes?order=nombre'),
       sbFetch('cuentas?order=cliente_id,numero'),
       sbFetch('visitas?order=fecha,created_at'),
-      sbFetch('items_visita?order=id'),
+      sbFetch('items_visita?order=id&limit=10000'),
       sbFetch('pagos?order=fecha')
     ]);
     setSync('on');
