@@ -401,7 +401,6 @@ async function sbFetch(path,method='GET',body=null){
     'Content-Type':'application/json',
     'Prefer':'return=representation'
   };
-  if(method==='GET') headers['Range']='0-9999';
   const opts={method,headers};
   if(body)opts.body=JSON.stringify(body);
   const res=await fetch(SB_URL+'/rest/v1/'+path,opts);
@@ -413,11 +412,11 @@ async function init(){
   setSync('loading');
   try{
     [clientes,cuentas,visitas,items,pagos]=await Promise.all([
-      sbFetch('clientes?order=nombre'),
-      sbFetch('cuentas?order=cliente_id,numero'),
-      sbFetch('visitas?order=fecha,created_at'),
+      sbFetch('clientes?order=nombre&limit=1000'),
+      sbFetch('cuentas?order=cliente_id,numero&limit=1000'),
+      sbFetch('visitas?order=fecha,created_at&limit=10000'),
       sbFetch('items_visita?order=id&limit=10000'),
-      sbFetch('pagos?order=fecha')
+      sbFetch('pagos?order=fecha&limit=1000')
     ]);
     setSync('on');
   }catch(e){setSync('off');showToast('Sin conexión');}
