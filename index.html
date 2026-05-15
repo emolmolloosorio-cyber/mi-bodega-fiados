@@ -377,8 +377,9 @@ function diasSinMov(cliId){
   if(!cc.length)return 0;
   const vs=visitas.filter(v=>cc.some(c=>c.id===v.cuenta_id));
   if(!vs.length)return 0;
-  const u=vs.map(v=>new Date(v.fecha)).sort((a,b)=>b-a)[0];
-  return Math.floor((new Date()-u)/86400000);
+  // Desde la PRIMERA visita
+  const primera=vs.map(v=>new Date(v.fecha)).sort((a,b)=>a-b)[0];
+  return Math.floor((new Date()-primera)/86400000);
 }
 function saldoCli(cliId){return cuentas.filter(c=>c.cliente_id===cliId&&(c.estado==='activa'||c.estado==='pendiente')).reduce((s,c)=>s+parseFloat(c.saldo||0),0);}
 function setSync(s){const d=document.getElementById('sync-dot'),t=document.getElementById('sync-txt');d.className='sync-dot'+(s==='on'?'':s==='off'?' off':' loading');t.textContent=s==='on'?'Sincronizado':s==='off'?'Sin conexión':'Sincronizando...';}
@@ -418,7 +419,7 @@ async function init(){
 function updateHeader(){
   const a=clientes.filter(c=>c.estado==='activo');
   const t=a.reduce((s,c)=>s+saldoCli(c.id),0);
-  const al=a.filter(c=>diasSinMov(c.id)>=7).length;
+  const al=a.filter(c=>diasSinMov(c.id)>=30).length;
   document.getElementById('h-clientes').textContent=a.length;
   document.getElementById('h-total').textContent='S/'+t.toFixed(0);
   document.getElementById('h-alertas').textContent=al;
@@ -515,7 +516,9 @@ function renderClientes(){
   if(!act.length){cont.innerHTML='<p class="empty">Sin clientes con fiado activo</p>';return;}
   cont.innerHTML=act.map(c=>{
     const saldo=saldoCli(c.id),dias=diasSinMov(c.id);
-    const alerta=dias>=14?`<span class="alert-badge danger">+${dias}d</span>`:dias>=7?`<span class="alert-badge warn">${dias}d</span>`:'';
+    const alertaClass=dias>=30?'danger':dias>=14?'warn':'';
+    const alertaStyle=dias>0&&dias<14?' style="background:var(--blue-bg);color:var(--blue)"':'';
+    const alerta=dias>0?`<span class="alert-badge ${alertaClass}"${alertaStyle}>${dias}d</span>`:'';
     const nc=cuentas.filter(cc=>cc.cliente_id===c.id&&(cc.estado==='activa'||cc.estado==='pendiente')).length;
     return `<div class="cliente-card">
       <div class="cliente-header" onclick="toggleCliente(${c.id})">
