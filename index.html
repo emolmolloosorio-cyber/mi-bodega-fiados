@@ -282,6 +282,7 @@ tr:last-child td{border-bottom:none}
         <input type="date" id="range-desde" style="flex:1" onchange="renderAnalisis()">
         <input type="date" id="range-hasta" style="flex:1" onchange="renderAnalisis()">
       </div>
+      <button class="btn btn-outline" style="margin-bottom:14px" onclick="exportarCSV()">⬇️ Exportar respaldo completo (CSV)</button>
       <div id="analisis-content"></div>
     </div>
   </div>
@@ -952,6 +953,65 @@ function imprimirRawBT(){
     URL.revokeObjectURL(url);
     showToast('Abre el archivo en RawBT');
   }
+}
+
+// ============================================================
+// EXPORTAR RESPALDO COMPLETO EN CSV
+// ============================================================
+function exportarCSV(){
+  // Construir filas: una por ítem de visita con todos los datos
+  const header=['Fecha','Cliente','Telefono','Producto','Precio','Total_Visita','Estado_Cliente'];
+  const rows=[header];
+
+  visitas.forEach(v=>{
+    const cuenta=cuentas.find(c=>c.id===v.cuenta_id);
+    const cli=cuenta?clientes.find(c=>c.id===cuenta.cliente_id):null;
+    const itsDeVisita=items.filter(it=>it.visita_id===v.id);
+
+    if(itsDeVisita.length===0){
+      // Visita sin ítems — igual la exportamos
+      rows.push([
+        v.fecha,
+        cli?cli.nombre:'',
+        cli?cli.telefono||'':'',
+        '',
+        '',
+        fmtNum(v.total_visita),
+        cli?cli.estado:''
+      ]);
+    } else {
+      itsDeVisita.forEach(it=>{
+        rows.push([
+          v.fecha,
+          cli?cli.nombre:'',
+          cli?cli.telefono||'':'',
+          it.producto,
+          fmtNum(it.precio),
+          fmtNum(v.total_visita),
+          cli?cli.estado:''
+        ]);
+      });
+    }
+  });
+
+  // Convertir a CSV escapando comas y comillas
+  const escape=val=>{
+    const s=String(val||'');
+    return s.includes(',')||s.includes('"')||s.includes('\n') ? '"'+s.replace(/"/g,'""')+'"' : s;
+  };
+  const csv=rows.map(r=>r.map(escape).join(',')).join('\n');
+
+  // Descargar
+  const fecha=today();
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`respaldo-fiados-${fecha}.csv`;
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✓ Respaldo descargado');
 }
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
