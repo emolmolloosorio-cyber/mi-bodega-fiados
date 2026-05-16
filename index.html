@@ -412,16 +412,57 @@ async function init(){
   setSync('loading');
   try{
     [clientes,cuentas,visitas,items,pagos]=await Promise.all([
-      sbFetch('clientes?order=nombre&limit=1000'),
-      sbFetch('cuentas?order=cliente_id,numero&limit=1000'),
-      sbFetch('visitas?order=fecha,created_at&limit=10000'),
-      sbFetch('items_visita?order=id&limit=10000'),
-      sbFetch('pagos?order=fecha&limit=1000')
+      sbFetch('clientes?order=nombre'),
+      sbFetch('cuentas?order=cliente_id,numero'),
+      sbFetch('visitas?order=fecha,created_at'),
+      sbFetch('items_visita?order=id'),
+      sbFetch('pagos?order=fecha')
     ]);
     setSync('on');
+    // Archivar cuentas pagadas con más de 2 meses
+    await archivarCuentasViejas();
   }catch(e){setSync('off');showToast('Sin conexión');}
   document.querySelectorAll('#f-cliente,#edit-cli-nombre,#abonar-nota').forEach(el=>{if(el)autoCapInput(el);});
   limpiarFormulario();renderClientes();updateHeader();
+}
+
+// Elimina cuentas pagadas con fecha_abono > 2 meses
+// Conserva el cliente — solo borra sus cuentas, visitas e ítems pagados
+async function archivarCuentasViejas(){
+  const hace2meses=new Date();
+  hace2meses.setMonth(hace2meses.getMonth()-2);
+  const fechaLimite=hace2meses.toISOString().split('T')[0];
+
+  const cuentasViejas=cuentas.filter(c=>
+    c.estado==='pagada' &&
+    c.fecha_abono &&
+    c.fecha_abono <= fechaLimite
+  );
+
+  if(!cuentasViejas.length) return;
+
+  for(const c of cuentasViejas){
+    // Obtener visitas de esta cuenta
+    const vsIds=visitas.filter(v=>v.cuenta_id===c.id).map(v=>v.id);
+    // Eliminar ítems de esas visitas
+    for(const vid of vsIds){
+      await sbFetch(`items_visita?visita_id=eq.${vid}`,'DELETE');
+    }
+    // Eliminar visitas
+    await sbFetch(`visitas?cuenta_id=eq.${c.id}`,'DELETE');
+    // Eliminar pagos
+    await sbFetch(`pagos?cuenta_id=eq.${c.id}`,'DELETE');
+    // Eliminar cuenta
+    await sbFetch(`cuentas?id=eq.${c.id}`,'DELETE');
+  }
+
+  // Actualizar estado local
+  const idsViejas=cuentasViejas.map(c=>c.id);
+  const vsViejas=visitas.filter(v=>idsViejas.includes(v.cuenta_id)).map(v=>v.id);
+  items   =items.filter(it=>!vsViejas.includes(it.visita_id));
+  visitas =visitas.filter(v=>!idsViejas.includes(v.cuenta_id));
+  pagos   =pagos.filter(p=>!idsViejas.includes(p.cuenta_id));
+  cuentas =cuentas.filter(c=>!idsViejas.includes(c.id));
 }
 function updateHeader(){
   const a=clientes.filter(c=>c.estado==='activo');
