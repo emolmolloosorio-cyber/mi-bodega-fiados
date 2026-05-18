@@ -819,6 +819,26 @@ function verRecibo(cuentaId){
   document.getElementById('recibo-titulo').textContent=`Recibo — ${cli.nombre} · Cuenta #${cuenta.numero}`;
   document.getElementById('btn-wa-recibo').style.display=cli.telefono?'block':'none';
   document.getElementById('modal-recibo').style.display='flex';
+
+  // Subir imagen a Supabase Storage para que el bot la pueda enviar
+  setTimeout(async()=>{
+    try{
+      const canvas=await html2canvas(document.getElementById('recibo-content'),{backgroundColor:'#fff',scale:2,useCORS:true});
+      canvas.toBlob(async blob=>{
+        const fileName=`recibo-cliente-${cuenta.cliente_id}.png`;
+        await fetch(`${SB_URL}/storage/v1/object/recibos/${fileName}`,{
+          method:'POST',
+          headers:{
+            'apikey':SB_KEY,
+            'Authorization':'Bearer '+SB_KEY,
+            'Content-Type':'image/png',
+            'x-upsert':'true'
+          },
+          body:blob
+        });
+      },'image/png');
+    }catch(e){ /* silencioso */ }
+  },500);
 }
 async function descargarRecibo(){
   showLoading('Generando imagen...');
