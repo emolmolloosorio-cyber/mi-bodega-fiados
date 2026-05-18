@@ -404,7 +404,9 @@ const headers={
 'apikey':SB_KEY,
 'Authorization':'Bearer '+SB_KEY,
 'Content-Type':'application/json',
-'Prefer':'return=representation'
+'Prefer':'return=representation',
+'Range-Unit':'items',
+'Range':'0-4999'
 };
 const opts={method,headers};
 if(body)opts.body=JSON.stringify(body);
@@ -417,11 +419,11 @@ async function init(){
 setSync('loading');
 try{
 [clientes,cuentas,visitas,items,pagos]=await Promise.all([
-sbFetch('clientes?order=nombre'),
-sbFetch('cuentas?order=cliente_id,numero'),
-sbFetch('visitas?order=fecha,created_at'),
-sbFetch('items_visita?order=id'),
-sbFetch('pagos?order=fecha')
+sbFetch('clientes?order=nombre&limit=5000'),
+sbFetch('cuentas?order=cliente_id,numero&limit=5000'),
+sbFetch('visitas?order=fecha,created_at&limit=5000'),
+sbFetch('items_visita?order=id&limit=5000'),
+sbFetch('pagos?order=fecha&limit=5000')
 ]);
 setSync('on');
 await archivarCuentasViejas();
@@ -812,7 +814,7 @@ try{
 const canvas=await html2canvas(document.getElementById('recibo-content'),{backgroundColor:'#fff',scale:2,useCORS:true});
 canvas.toBlob(async blob=>{
 const fileName=`recibo-cliente-${cuenta.cliente_id}.png`;
-const uploadRes=await fetch(`${SB_URL}/storage/v1/object/Recibos/${fileName}`,{
+const uploadRes=await fetch(`${SB_URL}/storage/v1/object/recibos/${fileName}`,{
 method:'PUT',
 headers:{
 'apikey':SB_KEY,
