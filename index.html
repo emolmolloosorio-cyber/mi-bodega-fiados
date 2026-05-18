@@ -404,10 +404,12 @@ const headers={
 'apikey':SB_KEY,
 'Authorization':'Bearer '+SB_KEY,
 'Content-Type':'application/json',
-'Prefer':'return=representation',
-'Range-Unit':'items',
-'Range':'0-4999'
+'Prefer':'return=representation'
 };
+if(method==='GET'){
+headers['Range-Unit']='items';
+headers['Range']='0-9999';
+}
 const opts={method,headers};
 if(body)opts.body=JSON.stringify(body);
 const res=await fetch(SB_URL+'/rest/v1/'+path,opts);
