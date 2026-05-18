@@ -14,25 +14,25 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --purple:#7C3AED;--purple-bg:#EDE9FE;--purple-dark:#5B21B6;--purple-light:#A78BFA;
-  --green:#166534;--green-bg:#DCFCE7;--green-mid:#16a34a;
-  --red:#991B1B;--red-bg:#FEE2E2;
-  --amber:#92400E;--amber-bg:#FEF3C7;
-  --bg:#fff;--bg2:#f8f7f6;--bg3:#eeece9;
-  --text:#1a1a1a;--text2:#6b6b6b;--text3:#a8a8a8;
-  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.18);
-  --radius:10px;--radius-lg:14px;--shadow:0 1px 4px rgba(0,0,0,0.07);
-  --ui:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --serif:Georgia,'Times New Roman',serif;
-  --num:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+--purple:#7C3AED;--purple-bg:#EDE9FE;--purple-dark:#5B21B6;--purple-light:#A78BFA;
+--green:#166534;--green-bg:#DCFCE7;--green-mid:#16a34a;
+--red:#991B1B;--red-bg:#FEE2E2;
+--amber:#92400E;--amber-bg:#FEF3C7;
+--bg:#fff;--bg2:#f8f7f6;--bg3:#eeece9;
+--text:#1a1a1a;--text2:#6b6b6b;--text3:#a8a8a8;
+--border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.18);
+--radius:10px;--radius-lg:14px;--shadow:0 1px 4px rgba(0,0,0,0.07);
+--ui:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+--serif:Georgia,'Times New Roman',serif;
+--num:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
 }
 @media(prefers-color-scheme:dark){:root{
-  --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
-  --text:#f2f2f7;--text2:#aeaeb2;--text3:#636366;
-  --border:rgba(255,255,255,0.09);--border2:rgba(255,255,255,0.20);
-  --purple:#A78BFA;--purple-bg:#2D1B69;--purple-dark:#C4B5FD;
-  --green:#4ADE80;--green-bg:#14532D;--green-mid:#22c55e;
-  --red:#F87171;--red-bg:#450A0A;--amber:#FCD34D;--amber-bg:#451A03;
+--bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
+--text:#f2f2f7;--text2:#aeaeb2;--text3:#636366;
+--border:rgba(255,255,255,0.09);--border2:rgba(255,255,255,0.20);
+--purple:#A78BFA;--purple-bg:#2D1B69;--purple-dark:#C4B5FD;
+--green:#4ADE80;--green-bg:#14532D;--green-mid:#22c55e;
+--red:#F87171;--red-bg:#450A0A;--amber:#FCD34D;--amber-bg:#451A03;
 }}
 html,body{height:100%;font-family:var(--ui);background:var(--bg);color:var(--text)}
 .app{display:flex;flex-direction:column;height:100%;max-width:700px;margin:0 auto}
@@ -225,140 +225,146 @@ tr:last-child td{border-bottom:none}
 </head>
 <body>
 <div class="app">
-  <div class="header">
-    <div class="header-top">
-      <div><h1>Fiados</h1><div class="header-date" id="hdr-date"></div></div>
-      <div class="sync-badge"><div class="sync-dot loading" id="sync-dot"></div><span id="sync-txt">Conectando...</span></div>
-    </div>
-    <div class="header-metrics">
-      <div class="hm"><div class="hm-label">Clientes</div><div class="hm-value" id="h-clientes">0</div></div>
-      <div class="hm"><div class="hm-label">Pendiente</div><div class="hm-value" id="h-total">S/0</div></div>
-      <div class="hm"><div class="hm-label">Alertas</div><div class="hm-value" id="h-alertas">0</div></div>
-    </div>
-  </div>
-  <div class="tabs">
-    <button class="tab active" onclick="swTab('fiados')">Fiados</button>
-    <button class="tab" onclick="swTab('nuevo')">+ Nuevo</button>
-    <button class="tab" onclick="swTab('historial')">Pagados</button>
-    <button class="tab" onclick="swTab('analisis')">Análisis</button>
-  </div>
-  <div class="content">
-    <div class="section active" id="tab-fiados">
-      <div class="search-box"><input type="text" id="buscar" placeholder="Buscar cliente..." oninput="renderClientes()"></div>
-      <div id="lista-clientes"></div>
-    </div>
-    <div class="section" id="tab-nuevo">
-      <div class="card">
-        <div class="card-title">Registrar fiado</div>
-        <div class="form-group"><label>Cliente</label>
-          <div class="ac-wrap">
-            <input type="text" id="f-cliente" placeholder="Nombre del cliente..." autocomplete="off" oninput="acCliente()" onfocus="acCliente()" onblur="setTimeout(hideAcCliente,160)">
-            <div class="ac-list" id="ac-cliente"></div>
-          </div>
-        </div>
-        <div class="form-group"><label>Teléfono (opcional)</label><input type="tel" id="f-tel" placeholder="Ej: 999888777"></div>
-        <div class="form-group"><label>Fecha</label><input type="date" id="f-fecha"></div>
-        <div id="visitas-container"></div>
-        <button class="btn-add-visita" onclick="addVisita()">+ Nueva visita del día</button>
-        <div class="total-dia">
-          <span class="total-dia-label">Total del día</span>
-          <span class="total-dia-value" id="total-dia-display">S/ 0.00</span>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-primary" onclick="registrarFiado()">Registrar fiado</button>
-          <button class="btn btn-outline" onclick="limpiarFormulario()">Limpiar</button>
-        </div>
-      </div>
-    </div>
-    <div class="section" id="tab-historial"><div id="lista-pagados"></div></div>
-    <div class="section" id="tab-analisis">
-      <div class="analisis-filters">
-        <button class="filter-btn active" onclick="setFiltro('hoy',this)">Hoy</button>
-        <button class="filter-btn" onclick="setFiltro('semana',this)">Semana</button>
-        <button class="filter-btn" onclick="setFiltro('mes',this)">Este mes</button>
-        <button class="filter-btn" onclick="setFiltro('rango',this)">Rango</button>
-      </div>
-      <div class="filter-range" id="filter-range">
-        <input type="date" id="range-desde" style="flex:1" onchange="renderAnalisis()">
-        <input type="date" id="range-hasta" style="flex:1" onchange="renderAnalisis()">
-      </div>
-      <button class="btn btn-outline" style="margin-bottom:14px" onclick="exportarCSV()">⬇️ Exportar respaldo completo (CSV)</button>
-      <div id="analisis-content"></div>
-    </div>
-  </div>
+<div class="header">
+<div class="header-top">
+<div><h1>Fiados</h1><div class="header-date" id="hdr-date"></div></div>
+<div class="sync-badge"><div class="sync-dot loading" id="sync-dot"></div><span id="sync-txt">Conectando...</span></div>
 </div>
+<div class="header-metrics">
+<div class="hm"><div class="hm-label">Clientes</div><div class="hm-value" id="h-clientes">0</div></div>
+<div class="hm"><div class="hm-label">Pendiente</div><div class="hm-value" id="h-total">S/0</div></div>
+<div class="hm"><div class="hm-label">Alertas</div><div class="hm-value" id="h-alertas">0</div></div>
+</div>
+</div>
+<div class="tabs">
+<button class="tab active" onclick="swTab('fiados')">Fiados</button>
+<button class="tab" onclick="swTab('nuevo')">+ Nuevo</button>
+<button class="tab" onclick="swTab('historial')">Pagados</button>
+<button class="tab" onclick="swTab('analisis')">Análisis</button>
+</div>
+<div class="content">
+<div class="section active" id="tab-fiados">
+<div class="search-box"><input type="text" id="buscar" placeholder="Buscar cliente..." oninput="renderClientes()"></div>
+<div id="lista-clientes"></div>
+</div>
+<div class="section" id="tab-nuevo">
+<div class="card">
+<div class="card-title">Registrar fiado</div>
+<div class="form-group"><label>Cliente</label>
+<div class="ac-wrap">
+<input type="text" id="f-cliente" placeholder="Nombre del cliente..." autocomplete="off" oninput="acCliente()" onfocus="acCliente()" onblur="setTimeout(hideAcCliente,160)">
+<div class="ac-list" id="ac-cliente"></div>
+</div>
+</div>
+<div class="form-group"><label>Teléfono (opcional)</label><input type="tel" id="f-tel" placeholder="Ej: 999888777"></div>
+<div class="form-group"><label>Fecha</label><input type="date" id="f-fecha"></div>
+<div id="visitas-container"></div>
+<button class="btn-add-visita" onclick="addVisita()">+ Nueva visita del día</button>
+<div class="total-dia">
+<span class="total-dia-label">Total del día</span>
+<span class="total-dia-value" id="total-dia-display">S/ 0.00</span>
+</div>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="registrarFiado()">Registrar fiado</button>
+<button class="btn btn-outline" onclick="limpiarFormulario()">Limpiar</button>
+</div>
+</div>
+</div>
+<div class="section" id="tab-historial"><div id="lista-pagados"></div></div>
+<div class="section" id="tab-analisis">
+<div class="analisis-filters">
+<button class="filter-btn active" onclick="setFiltro('hoy',this)">Hoy</button>
+<button class="filter-btn" onclick="setFiltro('semana',this)">Semana</button>
+<button class="filter-btn" onclick="setFiltro('mes',this)">Este mes</button>
+<button class="filter-btn" onclick="setFiltro('rango',this)">Rango</button>
+</div>
+<div class="filter-range" id="filter-range">
+<input type="date" id="range-desde" style="flex:1" onchange="renderAnalisis()">
+<input type="date" id="range-hasta" style="flex:1" onchange="renderAnalisis()">
+</div>
+<button class="btn btn-outline" style="margin-bottom:14px" onclick="exportarCSV()">⬇️ Exportar respaldo completo (CSV)</button>
+<div id="analisis-content"></div>
+</div>
+</div>
+</div>
+
 <!-- MODAL EDITAR VISITA -->
 <div class="modal-overlay" id="modal-edit">
-  <div class="modal-sheet">
-    <div class="modal-title">Editar visita</div>
-    <input type="hidden" id="edit-visita-id"><input type="hidden" id="edit-cuenta-id">
-    <div class="form-group"><label>Fecha</label><input type="date" id="edit-fecha"></div>
-    <div id="edit-items-container"></div>
-    <button class="btn-add-item" onclick="addEditItem()" style="margin-bottom:10px">+ Agregar producto</button>
-    <div class="total-dia" style="margin-bottom:10px">
-      <span class="total-dia-label">Total visita</span>
-      <span class="total-dia-value" id="edit-total-display">S/ 0.00</span>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="guardarEdit()">Guardar</button>
-      <button class="btn btn-outline" onclick="cerrarModal('modal-edit')">Cancelar</button>
-    </div>
-    <button class="btn btn-danger" onclick="eliminarVisita()">Eliminar esta visita</button>
-  </div>
+<div class="modal-sheet">
+<div class="modal-title">Editar visita</div>
+<input type="hidden" id="edit-visita-id"><input type="hidden" id="edit-cuenta-id">
+<div class="form-group"><label>Fecha</label><input type="date" id="edit-fecha"></div>
+<div id="edit-items-container"></div>
+<button class="btn-add-item" onclick="addEditItem()" style="margin-bottom:10px">+ Agregar producto</button>
+<div class="total-dia" style="margin-bottom:10px">
+<span class="total-dia-label">Total visita</span>
+<span class="total-dia-value" id="edit-total-display">S/ 0.00</span>
 </div>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="guardarEdit()">Guardar</button>
+<button class="btn btn-outline" onclick="cerrarModal('modal-edit')">Cancelar</button>
+</div>
+<button class="btn btn-danger" onclick="eliminarVisita()">Eliminar esta visita</button>
+</div>
+</div>
+
 <!-- MODAL ABONAR -->
 <div class="modal-overlay" id="modal-abonar">
-  <div class="modal-sheet">
-    <div class="modal-title" id="abonar-titulo">Registrar abono</div>
-    <input type="hidden" id="abonar-cuenta-id">
-    <div id="abonar-resumen" style="margin-bottom:12px;font-size:13px;color:var(--text2)"></div>
-    <div class="form-group"><label>Monto del abono (S/)</label><input type="number" id="abonar-monto" placeholder="0.00" min="0" step="0.01"></div>
-    <div class="form-group"><label>Fecha</label><input type="date" id="abonar-fecha"></div>
-    <div class="form-group"><label>Nota (opcional)</label><input type="text" id="abonar-nota" placeholder="Ej: Pagó en efectivo"></div>
-    <div id="abonar-historial" style="margin-bottom:12px"></div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="registrarAbono()">Registrar abono</button>
-      <button class="btn btn-outline" onclick="cerrarModal('modal-abonar')">Cancelar</button>
-    </div>
-  </div>
+<div class="modal-sheet">
+<div class="modal-title" id="abonar-titulo">Registrar abono</div>
+<input type="hidden" id="abonar-cuenta-id">
+<div id="abonar-resumen" style="margin-bottom:12px;font-size:13px;color:var(--text2)"></div>
+<div class="form-group"><label>Monto del abono (S/)</label><input type="number" id="abonar-monto" placeholder="0.00" min="0" step="0.01"></div>
+<div class="form-group"><label>Fecha</label><input type="date" id="abonar-fecha"></div>
+<div class="form-group"><label>Nota (opcional)</label><input type="text" id="abonar-nota" placeholder="Ej: Pagó en efectivo"></div>
+<div id="abonar-historial" style="margin-bottom:12px"></div>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="registrarAbono()">Registrar abono</button>
+<button class="btn btn-outline" onclick="cerrarModal('modal-abonar')">Cancelar</button>
 </div>
+</div>
+</div>
+
 <!-- MODAL EDITAR CLIENTE -->
 <div class="modal-overlay" id="modal-edit-cliente">
-  <div class="modal-sheet">
-    <div class="modal-title">Editar cliente</div>
-    <input type="hidden" id="edit-cli-id">
-    <div class="form-group"><label>Nombre</label><input type="text" id="edit-cli-nombre"></div>
-    <div class="form-group"><label>Teléfono</label><input type="tel" id="edit-cli-tel"></div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="guardarEditCliente()">Guardar</button>
-      <button class="btn btn-outline" onclick="cerrarModal('modal-edit-cliente')">Cancelar</button>
-    </div>
-  </div>
+<div class="modal-sheet">
+<div class="modal-title">Editar cliente</div>
+<input type="hidden" id="edit-cli-id">
+<div class="form-group"><label>Nombre</label><input type="text" id="edit-cli-nombre"></div>
+<div class="form-group"><label>Teléfono</label><input type="tel" id="edit-cli-tel"></div>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="guardarEditCliente()">Guardar</button>
+<button class="btn btn-outline" onclick="cerrarModal('modal-edit-cliente')">Cancelar</button>
 </div>
+</div>
+</div>
+
 <!-- MODAL RECIBO -->
 <div class="modal-overlay centered" id="modal-recibo">
-  <div class="modal-box">
-    <div class="modal-box-header">
-      <span id="recibo-titulo">Recibo</span>
-      <button class="modal-close" onclick="cerrarModal('modal-recibo')">×</button>
-    </div>
-    <div class="modal-box-body">
-      <div id="recibo-content"></div>
-      <!-- Versión oculta optimizada para impresión térmica 58mm -->
-      <div id="recibo-print" style="position:fixed;left:-9999px;top:0;width:384px;background:#fff;padding:8px 10px;font-family:Georgia,serif;color:#000"></div>
-      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-        <button class="btn btn-primary" style="flex:1;margin-top:0" onclick="descargarRecibo()">Guardar imagen</button>
-        <button id="btn-wa-recibo" class="btn" style="flex:1;background:#25D366;color:#fff;margin-top:0" onclick="compartirWA()">WhatsApp</button>
-      </div>
-      <button class="btn" style="background:#1c1c1e;color:#fff;margin-top:8px" onclick="imprimirRawBT()">🖨️ Imprimir ticket</button>
-      <button class="btn btn-outline" onclick="cerrarModal('modal-recibo')">Cerrar</button>
-    </div>
-  </div>
+<div class="modal-box">
+<div class="modal-box-header">
+<span id="recibo-titulo">Recibo</span>
+<button class="modal-close" onclick="cerrarModal('modal-recibo')">×</button>
 </div>
+<div class="modal-box-body">
+<div id="recibo-content"></div>
+<!-- Versión oculta optimizada para impresión térmica 58mm -->
+<div id="recibo-print" style="position:fixed;left:-9999px;top:0;width:384px;background:#fff;padding:8px 10px;font-family:Georgia,serif;color:#000"></div>
+<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+<button class="btn btn-primary" style="flex:1;margin-top:0" onclick="descargarRecibo()">Guardar imagen</button>
+<button id="btn-wa-recibo" class="btn" style="flex:1;background:#25D366;color:#fff;margin-top:0" onclick="compartirWA()">WhatsApp</button>
+</div>
+<button class="btn" style="background:#1c1c1e;color:#fff;margin-top:8px" onclick="imprimirRawBT()">🖨️ Imprimir ticket</button>
+<button class="btn btn-outline" onclick="cerrarModal('modal-recibo')">Cerrar</button>
+</div>
+</div>
+</div>
+
 <div class="loading-overlay" id="loading-overlay">
-  <div class="loading-box"><div class="spinner"></div><div id="loading-txt">Guardando...</div></div>
+<div class="loading-box"><div class="spinner"></div><div id="loading-txt">Guardando...</div></div>
 </div>
 <div class="toast" id="toast"></div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 const SB_URL='https://adjkgxgzdwonpzakhqwm.supabase.co';
@@ -374,13 +380,12 @@ function autoCapInput(el){el.addEventListener('input',()=>{if(el.value.length===
 const COLORS=['#7C3AED','#185FA5','#166534','#854F0B','#0F6E56','#993C1D','#993556','#444441'];
 function colorAvatar(n){let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%COLORS.length;return COLORS[h];}
 function diasSinMov(cliId){
-  const cc=cuentas.filter(c=>c.cliente_id===cliId&&(c.estado==='activa'||c.estado==='pendiente'));
-  if(!cc.length)return 0;
-  const vs=visitas.filter(v=>cc.some(c=>c.id===v.cuenta_id));
-  if(!vs.length)return 0;
-  // Desde la PRIMERA visita
-  const primera=vs.map(v=>new Date(v.fecha)).sort((a,b)=>a-b)[0];
-  return Math.floor((new Date()-primera)/86400000);
+const cc=cuentas.filter(c=>c.cliente_id===cliId&&(c.estado==='activa'||c.estado==='pendiente'));
+if(!cc.length)return 0;
+const vs=visitas.filter(v=>cc.some(c=>c.id===v.cuenta_id));
+if(!vs.length)return 0;
+const primera=vs.map(v=>new Date(v.fecha)).sort((a,b)=>a-b)[0];
+return Math.floor((new Date()-primera)/86400000);
 }
 function saldoCli(cliId){return cuentas.filter(c=>c.cliente_id===cliId&&(c.estado==='activa'||c.estado==='pendiente')).reduce((s,c)=>s+parseFloat(c.saldo||0),0);}
 function setSync(s){const d=document.getElementById('sync-dot'),t=document.getElementById('sync-txt');d.className='sync-dot'+(s==='on'?'':s==='off'?' off':' loading');t.textContent=s==='on'?'Sincronizado':s==='off'?'Sin conexión':'Sincronizando...';}
@@ -389,699 +394,630 @@ function showLoading(t='Guardando...'){document.getElementById('loading-txt').te
 function hideLoading(){document.getElementById('loading-overlay').style.display='none';}
 function cerrarModal(id){document.getElementById(id).style.display='none';}
 function swTab(n){
-  ['fiados','nuevo','historial','analisis'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===n));
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['fiados','nuevo','historial','analisis'][i]===n));
-  if(n==='historial')renderPagados();
-  if(n==='analisis')renderAnalisis();
+['fiados','nuevo','historial','analisis'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===n));
+document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['fiados','nuevo','historial','analisis'][i]===n));
+if(n==='historial')renderPagados();
+if(n==='analisis')renderAnalisis();
 }
 async function sbFetch(path,method='GET',body=null){
-  const headers={
-    'apikey':SB_KEY,
-    'Authorization':'Bearer '+SB_KEY,
-    'Content-Type':'application/json',
-    'Prefer':'return=representation'
-  };
-  const opts={method,headers};
-  if(body)opts.body=JSON.stringify(body);
-  const res=await fetch(SB_URL+'/rest/v1/'+path,opts);
-  if(!res.ok){const e=await res.text();throw new Error(e);}
-  const txt=await res.text();return txt?JSON.parse(txt):[];
+const headers={
+'apikey':SB_KEY,
+'Authorization':'Bearer '+SB_KEY,
+'Content-Type':'application/json',
+'Prefer':'return=representation'
+};
+const opts={method,headers};
+if(body)opts.body=JSON.stringify(body);
+const res=await fetch(SB_URL+'/rest/v1/'+path,opts);
+if(!res.ok){const e=await res.text();throw new Error(e);}
+const txt=await res.text();return txt?JSON.parse(txt):[];
 }
 document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 async function init(){
-  setSync('loading');
-  try{
-    [clientes,cuentas,visitas,items,pagos]=await Promise.all([
-      sbFetch('clientes?order=nombre'),
-      sbFetch('cuentas?order=cliente_id,numero'),
-      sbFetch('visitas?order=fecha,created_at'),
-      sbFetch('items_visita?order=id'),
-      sbFetch('pagos?order=fecha')
-    ]);
-    setSync('on');
-    // Archivar cuentas pagadas con más de 2 meses
-    await archivarCuentasViejas();
-  }catch(e){setSync('off');showToast('Sin conexión');}
-  document.querySelectorAll('#f-cliente,#edit-cli-nombre,#abonar-nota').forEach(el=>{if(el)autoCapInput(el);});
-  limpiarFormulario();renderClientes();updateHeader();
+setSync('loading');
+try{
+[clientes,cuentas,visitas,items,pagos]=await Promise.all([
+sbFetch('clientes?order=nombre'),
+sbFetch('cuentas?order=cliente_id,numero'),
+sbFetch('visitas?order=fecha,created_at'),
+sbFetch('items_visita?order=id'),
+sbFetch('pagos?order=fecha')
+]);
+setSync('on');
+await archivarCuentasViejas();
+}catch(e){setSync('off');showToast('Sin conexión');}
+document.querySelectorAll('#f-cliente,#edit-cli-nombre,#abonar-nota').forEach(el=>{if(el)autoCapInput(el);});
+limpiarFormulario();renderClientes();updateHeader();
 }
-
-// Elimina cuentas pagadas con fecha_abono > 2 meses
-// Conserva el cliente — solo borra sus cuentas, visitas e ítems pagados
 async function archivarCuentasViejas(){
-  const hace2meses=new Date();
-  hace2meses.setMonth(hace2meses.getMonth()-2);
-  const fechaLimite=hace2meses.toISOString().split('T')[0];
-
-  const cuentasViejas=cuentas.filter(c=>
-    c.estado==='pagada' &&
-    c.fecha_abono &&
-    c.fecha_abono <= fechaLimite
-  );
-
-  if(!cuentasViejas.length) return;
-
-  for(const c of cuentasViejas){
-    // Obtener visitas de esta cuenta
-    const vsIds=visitas.filter(v=>v.cuenta_id===c.id).map(v=>v.id);
-    // Eliminar ítems de esas visitas
-    for(const vid of vsIds){
-      await sbFetch(`items_visita?visita_id=eq.${vid}`,'DELETE');
-    }
-    // Eliminar visitas
-    await sbFetch(`visitas?cuenta_id=eq.${c.id}`,'DELETE');
-    // Eliminar pagos
-    await sbFetch(`pagos?cuenta_id=eq.${c.id}`,'DELETE');
-    // Eliminar cuenta
-    await sbFetch(`cuentas?id=eq.${c.id}`,'DELETE');
-  }
-
-  // Actualizar estado local
-  const idsViejas=cuentasViejas.map(c=>c.id);
-  const vsViejas=visitas.filter(v=>idsViejas.includes(v.cuenta_id)).map(v=>v.id);
-  items   =items.filter(it=>!vsViejas.includes(it.visita_id));
-  visitas =visitas.filter(v=>!idsViejas.includes(v.cuenta_id));
-  pagos   =pagos.filter(p=>!idsViejas.includes(p.cuenta_id));
-  cuentas =cuentas.filter(c=>!idsViejas.includes(c.id));
+const hace2meses=new Date();
+hace2meses.setMonth(hace2meses.getMonth()-2);
+const fechaLimite=hace2meses.toISOString().split('T')[0];
+const cuentasViejas=cuentas.filter(c=>
+c.estado==='pagada' &&
+c.fecha_abono &&
+c.fecha_abono <= fechaLimite
+);
+if(!cuentasViejas.length) return;
+for(const c of cuentasViejas){
+const vsIds=visitas.filter(v=>v.cuenta_id===c.id).map(v=>v.id);
+for(const vid of vsIds){
+await sbFetch(`items_visita?visita_id=eq.${vid}`,'DELETE');
+}
+await sbFetch(`visitas?cuenta_id=eq.${c.id}`,'DELETE');
+await sbFetch(`pagos?cuenta_id=eq.${c.id}`,'DELETE');
+await sbFetch(`cuentas?id=eq.${c.id}`,'DELETE');
+}
+const idsViejas=cuentasViejas.map(c=>c.id);
+const vsViejas=visitas.filter(v=>idsViejas.includes(v.cuenta_id)).map(v=>v.id);
+items =items.filter(it=>!vsViejas.includes(it.visita_id));
+visitas =visitas.filter(v=>!idsViejas.includes(v.cuenta_id));
+pagos =pagos.filter(p=>!idsViejas.includes(p.cuenta_id));
+cuentas =cuentas.filter(c=>!idsViejas.includes(c.id));
 }
 function updateHeader(){
-  const a=clientes.filter(c=>c.estado==='activo');
-  const t=a.reduce((s,c)=>s+saldoCli(c.id),0);
-  const al=a.filter(c=>diasSinMov(c.id)>=30).length;
-  document.getElementById('h-clientes').textContent=a.length;
-  document.getElementById('h-total').textContent='S/'+t.toFixed(0);
-  document.getElementById('h-alertas').textContent=al;
+const a=clientes.filter(c=>c.estado==='activo');
+const t=a.reduce((s,c)=>s+saldoCli(c.id),0);
+const al=a.filter(c=>diasSinMov(c.id)>=30).length;
+document.getElementById('h-clientes').textContent=a.length;
+document.getElementById('h-total').textContent='S/'+t.toFixed(0);
+document.getElementById('h-alertas').textContent=al;
 }
 function acCliente(){
-  const val=document.getElementById('f-cliente').value.trim().toLowerCase();
-  const list=document.getElementById('ac-cliente');
-  const act=clientes.filter(c=>c.estado==='activo');
-  const m=val===''?act:act.filter(c=>c.nombre.toLowerCase().includes(val));
-  const hl=(t,q)=>{if(!q)return t;const i=t.toLowerCase().indexOf(q);if(i<0)return t;return t.slice(0,i)+'<strong style="color:var(--purple)">'+t.slice(i,i+q.length)+'</strong>'+t.slice(i+q.length);};
-  let html=m.map(c=>`<div class="ac-item" onmousedown="selCliente(${c.id},'${c.nombre.replace(/'/g,"\\'")}','${(c.telefono||'').replace(/'/g,"\\'")}')">
-    ${hl(c.nombre,val)}<span class="ac-sub">Saldo ${fmt(saldoCli(c.id))}</span></div>`).join('');
-  const existe=clientes.some(c=>c.nombre.toLowerCase()===val);
-  if(val&&!existe)html+=`<div class="ac-item" onmousedown="nuevoClienteAc('${val.replace(/'/g,"\\'")}')"><span>${cap(val)}</span><span class="ac-new">+ Nuevo cliente</span></div>`;
-  list.innerHTML=html;list.style.display=html?'block':'none';
+const val=document.getElementById('f-cliente').value.trim().toLowerCase();
+const list=document.getElementById('ac-cliente');
+const act=clientes.filter(c=>c.estado==='activo');
+const m=val===''?act:act.filter(c=>c.nombre.toLowerCase().includes(val));
+const hl=(t,q)=>{if(!q)return t;const i=t.toLowerCase().indexOf(q);if(i<0)return t;return t.slice(0,i)+'<strong style="color:var(--purple)">'+t.slice(i,i+q.length)+'</strong>'+t.slice(i+q.length);};
+let html=m.map(c=>`<div class="ac-item" onmousedown="selCliente(${c.id},'${c.nombre.replace(/'/g,"\\'")}','${(c.telefono||'').replace(/'/g,"\\'")}')">
+${hl(c.nombre,val)}<span class="ac-sub">Saldo ${fmt(saldoCli(c.id))}</span></div>`).join('');
+const existe=clientes.some(c=>c.nombre.toLowerCase()===val);
+if(val&&!existe)html+=`<div class="ac-item" onmousedown="nuevoClienteAc('${val.replace(/'/g,"\\'")}')"><span>${cap(val)}</span><span class="ac-new">+ Nuevo cliente</span></div>`;
+list.innerHTML=html;list.style.display=html?'block':'none';
 }
 function hideAcCliente(){document.getElementById('ac-cliente').style.display='none';}
 function selCliente(id,nombre,tel){document.getElementById('f-cliente').value=nombre;document.getElementById('f-cliente').dataset.id=id;if(tel)document.getElementById('f-tel').value=tel;hideAcCliente();}
 function nuevoClienteAc(n){document.getElementById('f-cliente').value=cap(n);document.getElementById('f-cliente').dataset.id='';hideAcCliente();}
 let visitaCount=0;
 function addVisita(){
-  visitaCount++;const id='v-'+visitaCount;
-  const div=document.createElement('div');div.className='visita-block';div.id=id;
-  div.innerHTML=`<div class="visita-header"><span class="visita-title">Visita ${visitaCount}</span><button class="visita-remove" onclick="removeVisita('${id}')">✕</button></div>
-    <div class="items-list" id="items-${id}"></div>
-    <button class="btn-add-item" onclick="addItemToVisita('${id}')">+ Agregar producto</button>
-    <div class="visita-subtotal">Subtotal: <strong id="sub-${id}">S/ 0.00</strong></div>`;
-  document.getElementById('visitas-container').appendChild(div);
-  addItemToVisita(id);renumerarVisitas();
+visitaCount++;const id='v-'+visitaCount;
+const div=document.createElement('div');div.className='visita-block';div.id=id;
+div.innerHTML=`<div class="visita-header"><span class="visita-title">Visita ${visitaCount}</span><button class="visita-remove" onclick="removeVisita('${id}')">✕</button></div>
+<div class="items-list" id="items-${id}"></div>
+<button class="btn-add-item" onclick="addItemToVisita('${id}')">+ Agregar producto</button>
+<div class="visita-subtotal">Subtotal: <strong id="sub-${id}">S/ 0.00</strong></div>`;
+document.getElementById('visitas-container').appendChild(div);
+addItemToVisita(id);renumerarVisitas();
 }
 function removeVisita(id){document.getElementById(id)?.remove();renumerarVisitas();recalcTotalDia();}
 function renumerarVisitas(){document.querySelectorAll('#visitas-container .visita-block').forEach((el,i)=>el.querySelector('.visita-title').textContent='Visita '+(i+1));}
 function addItemToVisita(vid){
-  const list=document.getElementById('items-'+vid);
-  const iid='it-'+Date.now()+'-'+Math.random().toString(36).slice(2,5);
-  const div=document.createElement('div');div.className='item-row';div.id=iid;
-  div.innerHTML=`<input type="text" placeholder="Producto" oninput="recalcSubtotal('${vid}')">
-    <input type="number" placeholder="S/ precio" step="0.01" oninput="recalcSubtotal('${vid}')">
-    <button class="item-remove" onclick="removeItem('${iid}','${vid}')">×</button>`;
-  list.appendChild(div);autoCapInput(div.querySelector('input[type=text]'));div.querySelector('input').focus();
+const list=document.getElementById('items-'+vid);
+const iid='it-'+Date.now()+'-'+Math.random().toString(36).slice(2,5);
+const div=document.createElement('div');div.className='item-row';div.id=iid;
+div.innerHTML=`<input type="text" placeholder="Producto" oninput="recalcSubtotal('${vid}')">
+<input type="number" placeholder="S/ precio" step="0.01" oninput="recalcSubtotal('${vid}')">
+<button class="item-remove" onclick="removeItem('${iid}','${vid}')">×</button>`;
+list.appendChild(div);autoCapInput(div.querySelector('input[type=text]'));div.querySelector('input').focus();
 }
 function removeItem(iid,vid){document.getElementById(iid)?.remove();recalcSubtotal(vid);}
 function recalcSubtotal(vid){let s=0;document.querySelectorAll(`#items-${vid} input[type=number]`).forEach(i=>s+=parseFloat(i.value)||0);document.getElementById('sub-'+vid).textContent=fmt(s);recalcTotalDia();}
 function recalcTotalDia(){let t=0;document.querySelectorAll('#visitas-container input[type=number]').forEach(i=>t+=parseFloat(i.value)||0);document.getElementById('total-dia-display').textContent=fmt(t);}
 function limpiarFormulario(){document.getElementById('f-cliente').value='';document.getElementById('f-cliente').dataset.id='';document.getElementById('f-tel').value='';document.getElementById('f-fecha').value=today();document.getElementById('visitas-container').innerHTML='';document.getElementById('total-dia-display').textContent='S/ 0.00';visitaCount=0;addVisita();}
 async function registrarFiado(){
-  const nombreRaw=document.getElementById('f-cliente').value.trim();
-  if(!nombreRaw){alert('Escribe el nombre del cliente');return;}
-  const nombre=cap(nombreRaw);
-  const tel=document.getElementById('f-tel').value.trim();
-  const fecha=document.getElementById('f-fecha').value;
-  const visitasData=[];
-  for(const bloque of document.querySelectorAll('#visitas-container .visita-block')){
-    const its=[];
-    bloque.querySelectorAll('.item-row').forEach(row=>{
-      const[ip,ipr]=row.querySelectorAll('input');
-      const prod=cap(ip.value.trim()),prec=parseFloat(ipr.value)||0;
-      if(prod&&prec!==0)its.push({producto:prod,precio:prec});
-    });
-    if(its.length>0)visitasData.push({items:its,total_visita:its.reduce((s,it)=>s+it.precio,0)});
-  }
-  if(!visitasData.length){alert('Agrega al menos un producto con precio');return;}
-  const totalDia=visitasData.reduce((s,v)=>s+v.total_visita,0);
-  showLoading('Registrando fiado...');setSync('loading');
-  try{
-    let cliId=parseInt(document.getElementById('f-cliente').dataset.id)||null;
-    let cli=clientes.find(c=>c.id===cliId);
-    if(!cli)cli=clientes.find(c=>c.nombre.toLowerCase()===nombre.toLowerCase()&&c.estado==='activo');
-    if(!cli){cli=first(await sbFetch('clientes','POST',{nombre,telefono:tel||null,estado:'activo'}));clientes.push(cli);}
-    else if(tel&&tel!==cli.telefono){await sbFetch(`clientes?id=eq.${cli.id}`,'PATCH',{telefono:tel});cli.telefono=tel;}
-    // Solo buscar cuenta ACTIVA — nunca usar pendiente ni pagada para nuevos fiados
-    let cuenta=cuentas.find(c=>c.cliente_id===cli.id&&c.estado==='activa');
-    if(!cuenta){
-      const n=cuentas.filter(c=>c.cliente_id===cli.id).length;
-      cuenta=first(await sbFetch('cuentas','POST',{cliente_id:cli.id,numero:n+1,estado:'activa',total_fiado:0,monto_abonado:0,saldo:0}));
-      cuentas.push(cuenta);
-    }
-    for(const vData of visitasData){
-      const v=first(await sbFetch('visitas','POST',{cuenta_id:cuenta.id,fecha,total_visita:vData.total_visita}));visitas.push(v);
-      for(const it of vData.items){items.push(first(await sbFetch('items_visita','POST',{visita_id:v.id,producto:it.producto,precio:it.precio})));}
-    }
-    const nt=parseFloat(cuenta.total_fiado||0)+totalDia,ns=nt-parseFloat(cuenta.monto_abonado||0);
-    await sbFetch(`cuentas?id=eq.${cuenta.id}`,'PATCH',{total_fiado:nt,saldo:ns});
-    cuenta.total_fiado=nt;cuenta.saldo=ns;
-    setSync('on');showToast('✓ Fiado registrado — '+fmt(totalDia));
-    limpiarFormulario();renderClientes();updateHeader();swTab('fiados');
-  }catch(e){setSync('off');showToast('Error: '+e.message);}
-  hideLoading();
+const nombreRaw=document.getElementById('f-cliente').value.trim();
+if(!nombreRaw){alert('Escribe el nombre del cliente');return;}
+const nombre=cap(nombreRaw);
+const tel=document.getElementById('f-tel').value.trim();
+const fecha=document.getElementById('f-fecha').value;
+const visitasData=[];
+for(const bloque of document.querySelectorAll('#visitas-container .visita-block')){
+const its=[];
+bloque.querySelectorAll('.item-row').forEach(row=>{
+const[ip,ipr]=row.querySelectorAll('input');
+const prod=cap(ip.value.trim()),prec=parseFloat(ipr.value)||0;
+if(prod&&prec!==0)its.push({producto:prod,precio:prec});
+});
+if(its.length>0)visitasData.push({items:its,total_visita:its.reduce((s,it)=>s+it.precio,0)});
+}
+if(!visitasData.length){alert('Agrega al menos un producto con precio');return;}
+const totalDia=visitasData.reduce((s,v)=>s+v.total_visita,0);
+showLoading('Registrando fiado...');setSync('loading');
+try{
+let cliId=parseInt(document.getElementById('f-cliente').dataset.id)||null;
+let cli=clientes.find(c=>c.id===cliId);
+if(!cli)cli=clientes.find(c=>c.nombre.toLowerCase()===nombre.toLowerCase()&&c.estado==='activo');
+if(!cli){cli=first(await sbFetch('clientes','POST',{nombre,telefono:tel||null,estado:'activo'}));clientes.push(cli);}
+else if(tel&&tel!==cli.telefono){await sbFetch(`clientes?id=eq.${cli.id}`,'PATCH',{telefono:tel});cli.telefono=tel;}
+let cuenta=cuentas.find(c=>c.cliente_id===cli.id&&c.estado==='activa');
+if(!cuenta){
+const n=cuentas.filter(c=>c.cliente_id===cli.id).length;
+cuenta=first(await sbFetch('cuentas','POST',{cliente_id:cli.id,numero:n+1,estado:'activa',total_fiado:0,monto_abonado:0,saldo:0}));
+cuentas.push(cuenta);
+}
+for(const vData of visitasData){
+const v=first(await sbFetch('visitas','POST',{cuenta_id:cuenta.id,fecha,total_visita:vData.total_visita}));visitas.push(v);
+for(const it of vData.items){items.push(first(await sbFetch('items_visita','POST',{visita_id:v.id,producto:it.producto,precio:it.precio})));}
+}
+const nt=parseFloat(cuenta.total_fiado||0)+totalDia,ns=nt-parseFloat(cuenta.monto_abonado||0);
+await sbFetch(`cuentas?id=eq.${cuenta.id}`,'PATCH',{total_fiado:nt,saldo:ns});
+cuenta.total_fiado=nt;cuenta.saldo=ns;
+setSync('on');showToast('✓ Fiado registrado — '+fmt(totalDia));
+limpiarFormulario();renderClientes();updateHeader();swTab('fiados');
+}catch(e){setSync('off');showToast('Error: '+e.message);}
+hideLoading();
 }
 function renderClientes(){
-  const buscar=document.getElementById('buscar').value.trim().toLowerCase();
-  const act=clientes.filter(c=>c.estado==='activo'&&(!buscar||c.nombre.toLowerCase().includes(buscar))).sort((a,b)=>saldoCli(b.id)-saldoCli(a.id));
-  const cont=document.getElementById('lista-clientes');
-  if(!act.length){cont.innerHTML='<p class="empty">Sin clientes con fiado activo</p>';return;}
-  cont.innerHTML=act.map(c=>{
-    const saldo=saldoCli(c.id),dias=diasSinMov(c.id);
-    const alertaClass=dias>=30?'danger':dias>=14?'warn':'';
-    const alertaStyle=dias>0&&dias<14?' style="background:var(--blue-bg);color:var(--blue)"':'';
-    const alerta=dias>0?`<span class="alert-badge ${alertaClass}"${alertaStyle}>${dias}d</span>`:'';
-    const nc=cuentas.filter(cc=>cc.cliente_id===c.id&&(cc.estado==='activa'||cc.estado==='pendiente')).length;
-    return `<div class="cliente-card">
-      <div class="cliente-header" onclick="toggleCliente(${c.id})">
-        <div class="cliente-avatar" style="background:${colorAvatar(c.nombre)}">${c.nombre.charAt(0).toUpperCase()}</div>
-        <div class="cliente-info">
-          <div class="cliente-name">${c.nombre} ${alerta}</div>
-          <div class="cliente-meta">${c.telefono?'📱 '+c.telefono:'Sin teléfono'}</div>
-        </div>
-        <div class="cliente-deuda"><div class="deuda-monto">${fmt(saldo)}</div><div class="deuda-label">saldo total</div></div>
-      </div>
-      <div class="cliente-body" id="body-${c.id}">
-        ${renderCuentasCliente(c.id)}
-        <div style="padding:10px 14px;border-top:0.5px solid var(--border);background:var(--bg2);display:flex;gap:8px">
-          <button class="btn-sm" onclick="abrirEditCliente(${c.id})">✎ Editar cliente</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+const buscar=document.getElementById('buscar').value.trim().toLowerCase();
+const act=clientes.filter(c=>c.estado==='activo'&&(!buscar||c.nombre.toLowerCase().includes(buscar))).sort((a,b)=>saldoCli(b.id)-saldoCli(a.id));
+const cont=document.getElementById('lista-clientes');
+if(!act.length){cont.innerHTML='<p class="empty">Sin clientes con fiado activo</p>';return;}
+cont.innerHTML=act.map(c=>{
+const saldo=saldoCli(c.id),dias=diasSinMov(c.id);
+const alertaClass=dias>=30?'danger':dias>=14?'warn':'';
+const alertaStyle=dias>0&&dias<14?' style="background:var(--blue-bg);color:var(--blue)"':'';
+const alerta=dias>0?`<span class="alert-badge ${alertaClass}"${alertaStyle}>${dias}d</span>`:'';
+const nc=cuentas.filter(cc=>cc.cliente_id===c.id&&(cc.estado==='activa'||cc.estado==='pendiente')).length;
+return `<div class="cliente-card">
+<div class="cliente-header" onclick="toggleCliente(${c.id})">
+<div class="cliente-avatar" style="background:${colorAvatar(c.nombre)}">${c.nombre.charAt(0).toUpperCase()}</div>
+<div class="cliente-info">
+<div class="cliente-name">${c.nombre} ${alerta}</div>
+<div class="cliente-meta">${c.telefono?'📱 '+c.telefono:'Sin teléfono'}</div>
+</div>
+<div class="cliente-deuda"><div class="deuda-monto">${fmt(saldo)}</div><div class="deuda-label">saldo total</div></div>
+</div>
+<div class="cliente-body" id="body-${c.id}">
+${renderCuentasCliente(c.id)}
+<div style="padding:10px 14px;border-top:0.5px solid var(--border);background:var(--bg2);display:flex;gap:8px">
+<button class="btn-sm" onclick="abrirEditCliente(${c.id})">✎ Editar cliente</button>
+</div>
+</div>
+</div>`;
+}).join('');
 }
 function renderCuentasCliente(cliId){
-  const cc=cuentas.filter(c=>c.cliente_id===cliId&&(c.estado==='activa'||c.estado==='pendiente')).sort((a,b)=>b.numero-a.numero);
-  if(!cc.length)return '<p class="empty" style="padding:1rem">Sin movimientos</p>';
-  return cc.map(cuenta=>`
-    <div class="cuenta-block">
-      <div class="cuenta-body" id="cuenta-body-${cuenta.id}" style="display:block">
-        ${renderVisitasCuenta(cuenta.id)}
-        <div class="cuenta-footer">
-          <button class="btn-receipt" onclick="verRecibo(${cuenta.id})">🧾 Recibo</button>
-          <button class="btn-pay" onclick="marcarPagado(${cuenta.cliente_id})">✓ Pagado</button>
-        </div>
-      </div>
-    </div>`).join('');
+const cc=cuentas.filter(c=>c.cliente_id===cliId&&(c.estado==='activa'||c.estado==='pendiente')).sort((a,b)=>b.numero-a.numero);
+if(!cc.length)return '<p class="empty" style="padding:1rem">Sin movimientos</p>';
+return cc.map(cuenta=>`
+<div class="cuenta-block">
+<div class="cuenta-body" id="cuenta-body-${cuenta.id}" style="display:block">
+${renderVisitasCuenta(cuenta.id)}
+<div class="cuenta-footer">
+<button class="btn-receipt" onclick="verRecibo(${cuenta.id})">🧾 Recibo</button>
+<button class="btn-pay" onclick="marcarPagado(${cuenta.cliente_id})">✓ Pagado</button>
+</div>
+</div>
+</div>`).join('');
 }
 function renderVisitasCuenta(cuentaId){
-  const vs=visitas.filter(v=>v.cuenta_id===cuentaId).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
-  if(!vs.length)return '<p class="empty" style="padding:.8rem">Sin visitas</p>';
-  const pf={};vs.forEach(v=>{(pf[v.fecha]=pf[v.fecha]||[]).push(v);});
-  return Object.entries(pf).map(([fecha,vsd])=>{
-    const td=vsd.reduce((s,v)=>s+parseFloat(v.total_visita||0),0),nv=vsd.length;
-    const dh=nv>1?`<div class="dia-grupo-header"><span class="dia-grupo-fecha">${fechaDisplay(fecha)}</span><span class="dia-grupo-info">${nv} visitas</span><span class="dia-grupo-total">${fmt(td)}</span></div>`:'';
-    const vh=vsd.map((v,idx)=>{
-      const its=items.filter(it=>it.visita_id===v.id);
-      const ih=its.map(it=>`<div class="visita-item-line"><span>${it.producto}</span><span>${fmt(it.precio)}</span></div>`).join('');
-      const lt=nv>1?`Visita ${idx+1}`:fechaDisplay(fecha);
-      return `<div class="visita-row">
-        <div class="visita-row-header" onclick="toggleVI('vc-${v.id}')">
-          <div><div class="visita-label-txt">${lt}</div><div class="visita-nprod">${its.length} producto${its.length!==1?'s':''} — toca para ver</div></div>
-          <span class="visita-monto">${fmt(v.total_visita)}</span>
-        </div>
-        <div class="visita-items-list" id="vc-${v.id}">${ih}</div>
-        <div class="visita-edit-bar"><button class="btn-sm" onclick="abrirModalEdit(${v.id},${cuentaId})">✎ Editar</button></div>
-      </div>`;
-    }).join('');
-    return dh+vh;
-  }).join('');
+const vs=visitas.filter(v=>v.cuenta_id===cuentaId).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+if(!vs.length)return '<p class="empty" style="padding:.8rem">Sin visitas</p>';
+const pf={};vs.forEach(v=>{(pf[v.fecha]=pf[v.fecha]||[]).push(v);});
+return Object.entries(pf).map(([fecha,vsd])=>{
+const td=vsd.reduce((s,v)=>s+parseFloat(v.total_visita||0),0),nv=vsd.length;
+const dh=nv>1?`<div class="dia-grupo-header"><span class="dia-grupo-fecha">${fechaDisplay(fecha)}</span><span class="dia-grupo-info">${nv} visitas</span><span class="dia-grupo-total">${fmt(td)}</span></div>`:'';
+const vh=vsd.map((v,idx)=>{
+const its=items.filter(it=>it.visita_id===v.id);
+const ih=its.map(it=>`<div class="visita-item-line"><span>${it.producto}</span><span>${fmt(it.precio)}</span></div>`).join('');
+const lt=nv>1?`Visita ${idx+1}`:fechaDisplay(fecha);
+return `<div class="visita-row">
+<div class="visita-row-header" onclick="toggleVI('vc-${v.id}')">
+<div><div class="visita-label-txt">${lt}</div><div class="visita-nprod">${its.length} producto${its.length!==1?'s':''} — toca para ver</div></div>
+<span class="visita-monto">${fmt(v.total_visita)}</span>
+</div>
+<div class="visita-items-list" id="vc-${v.id}">${ih}</div>
+<div class="visita-edit-bar"><button class="btn-sm" onclick="abrirModalEdit(${v.id},${cuentaId})">✎ Editar</button></div>
+</div>`;
+}).join('');
+return dh+vh;
+}).join('');
 }
 function toggleCliente(id){const b=document.getElementById('body-'+id),o=b.style.display==='block';document.querySelectorAll('.cliente-body').forEach(x=>x.style.display='none');if(!o)b.style.display='block';}
 function toggleCuenta(id){const b=document.getElementById('cuenta-body-'+id),o=b.style.display==='block';b.closest('.cliente-body').querySelectorAll('.cuenta-body').forEach(x=>x.style.display='none');if(!o)b.style.display='block';}
 function toggleVI(id){const el=document.getElementById(id);if(el)el.style.display=el.style.display==='block'?'none':'block';}
 function abrirEditCliente(cliId){
-  const cli=clientes.find(c=>c.id===cliId);
-  document.getElementById('edit-cli-id').value=cliId;
-  document.getElementById('edit-cli-nombre').value=cli.nombre;
-  document.getElementById('edit-cli-tel').value=cli.telefono||'';
-  document.getElementById('modal-edit-cliente').style.display='flex';
+const cli=clientes.find(c=>c.id===cliId);
+document.getElementById('edit-cli-id').value=cliId;
+document.getElementById('edit-cli-nombre').value=cli.nombre;
+document.getElementById('edit-cli-tel').value=cli.telefono||'';
+document.getElementById('modal-edit-cliente').style.display='flex';
 }
 async function guardarEditCliente(){
-  const id=parseInt(document.getElementById('edit-cli-id').value);
-  const nombre=cap(document.getElementById('edit-cli-nombre').value.trim());
-  const tel=document.getElementById('edit-cli-tel').value.trim();
-  if(!nombre){alert('El nombre no puede estar vacío');return;}
-  showLoading('Guardando...');setSync('loading');
-  try{
-    await sbFetch(`clientes?id=eq.${id}`,'PATCH',{nombre,telefono:tel||null});
-    const cli=clientes.find(c=>c.id===id);cli.nombre=nombre;cli.telefono=tel||null;
-    setSync('on');showToast('✓ Cliente actualizado');cerrarModal('modal-edit-cliente');renderClientes();
-  }catch(e){setSync('off');showToast('Error: '+e.message);}
-  hideLoading();
+const id=parseInt(document.getElementById('edit-cli-id').value);
+const nombre=cap(document.getElementById('edit-cli-nombre').value.trim());
+const tel=document.getElementById('edit-cli-tel').value.trim();
+if(!nombre){alert('El nombre no puede estar vacío');return;}
+showLoading('Guardando...');setSync('loading');
+try{
+await sbFetch(`clientes?id=eq.${id}`,'PATCH',{nombre,telefono:tel||null});
+const cli=clientes.find(c=>c.id===id);cli.nombre=nombre;cli.telefono=tel||null;
+setSync('on');showToast('✓ Cliente actualizado');cerrarModal('modal-edit-cliente');renderClientes();
+}catch(e){setSync('off');showToast('Error: '+e.message);}
+hideLoading();
 }
 function abrirModalAbonar(cuentaId){
-  const cuenta=cuentas.find(c=>c.id===cuentaId),cli=clientes.find(c=>c.id===cuenta.cliente_id);
-  document.getElementById('abonar-cuenta-id').value=cuentaId;
-  document.getElementById('abonar-titulo').textContent=`Abonar — ${cli.nombre} · Cuenta #${cuenta.numero}`;
-  document.getElementById('abonar-resumen').innerHTML=`Fiado total: <strong>${fmt(cuenta.total_fiado)}</strong> · Saldo pendiente: <strong style="color:var(--red)">${fmt(cuenta.saldo)}</strong>`;
-  document.getElementById('abonar-monto').value=fmtNum(cuenta.saldo);
-  document.getElementById('abonar-fecha').value=today();
-  document.getElementById('abonar-nota').value='';
-  const pa=pagos.filter(p=>p.cuenta_id===cuentaId);
-  document.getElementById('abonar-historial').innerHTML=pa.length?`
-    <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">Abonos anteriores</div>
-    ${pa.map(p=>`<div class="abono-row" style="border:none;padding:4px 0"><span class="abono-fecha">${fechaDisplay(p.fecha)}${p.nota?' · '+p.nota:''}</span><span class="abono-monto">− ${fmt(p.monto)}</span></div>`).join('')}
-    <div class="divider"></div></div>`:'';
-  document.getElementById('modal-abonar').style.display='flex';
+const cuenta=cuentas.find(c=>c.id===cuentaId),cli=clientes.find(c=>c.id===cuenta.cliente_id);
+document.getElementById('abonar-cuenta-id').value=cuentaId;
+document.getElementById('abonar-titulo').textContent=`Abonar — ${cli.nombre} · Cuenta #${cuenta.numero}`;
+document.getElementById('abonar-resumen').innerHTML=`Fiado total: <strong>${fmt(cuenta.total_fiado)}</strong> · Saldo pendiente: <strong style="color:var(--red)">${fmt(cuenta.saldo)}</strong>`;
+document.getElementById('abonar-monto').value=fmtNum(cuenta.saldo);
+document.getElementById('abonar-fecha').value=today();
+document.getElementById('abonar-nota').value='';
+const pa=pagos.filter(p=>p.cuenta_id===cuentaId);
+document.getElementById('abonar-historial').innerHTML=pa.length?`
+<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">Abonos anteriores</div>
+${pa.map(p=>`<div class="abono-row" style="border:none;padding:4px 0"><span class="abono-fecha">${fechaDisplay(p.fecha)}${p.nota?' · '+p.nota:''}</span><span class="abono-monto">− ${fmt(p.monto)}</span></div>`).join('')}
+<div class="divider"></div></div>`:'';
+document.getElementById('modal-abonar').style.display='flex';
 }
 async function registrarAbono(){
-  const cuentaId=parseInt(document.getElementById('abonar-cuenta-id').value);
-  const monto=parseFloat(document.getElementById('abonar-monto').value)||0;
-  const fecha=document.getElementById('abonar-fecha').value;
-  const nota=cap(document.getElementById('abonar-nota').value.trim());
-  const cuenta=cuentas.find(c=>c.id===cuentaId);
-  if(!monto||monto<=0){alert('Ingresa un monto válido');return;}
-  showLoading('Registrando abono...');setSync('loading');
-  try{
-    // 1. Registrar el pago
-    const pago=first(await sbFetch('pagos','POST',{cuenta_id:cuentaId,fecha,monto,nota:nota||null}));pagos.push(pago);
-    // 2. Calcular nuevo saldo
-    const na=parseFloat(cuenta.monto_abonado||0)+monto;
-    const ns=Math.max(0,parseFloat(cuenta.total_fiado||0)-na);
-    // 3. Estado: 'pagada' si saldo=0, 'pendiente' si saldo>0
-    const nuevoEstado=ns===0?'pagada':'pendiente';
-    await sbFetch(`cuentas?id=eq.${cuentaId}`,'PATCH',{monto_abonado:na,saldo:ns,estado:nuevoEstado,fecha_abono:fecha});
-    cuenta.monto_abonado=na;cuenta.saldo=ns;cuenta.estado=nuevoEstado;cuenta.fecha_abono=fecha;
-    // 4. Si quedó pendiente → crear nueva cuenta activa automáticamente
-    if(nuevoEstado==='pendiente'){
-      const nCuentas=cuentas.filter(c=>c.cliente_id===cuenta.cliente_id).length;
-      const nuevaCuenta=first(await sbFetch('cuentas','POST',{
-        cliente_id:cuenta.cliente_id,numero:nCuentas+1,
-        estado:'activa',total_fiado:0,monto_abonado:0,saldo:0
-      }));
-      cuentas.push(nuevaCuenta);
-    }
-    // 5. Si quedó pagada y no hay más cuentas activas/pendientes → marcar cliente como pagado
-    if(nuevoEstado==='pagada'){
-      const tieneDeuda=cuentas.some(c=>c.cliente_id===cuenta.cliente_id&&(c.estado==='activa'||c.estado==='pendiente')&&c.id!==cuentaId);
-      if(!tieneDeuda){
-        await sbFetch(`clientes?id=eq.${cuenta.cliente_id}`,'PATCH',{estado:'pagado'});
-        const cli=clientes.find(c=>c.id===cuenta.cliente_id);if(cli)cli.estado='pagado';
-      }
-    }
-    setSync('on');
-    showToast(nuevoEstado==='pagada'?'✓ Cuenta pagada completamente':'✓ Abono registrado — nueva cuenta activa creada');
-    cerrarModal('modal-abonar');renderClientes();updateHeader();
-  }catch(e){setSync('off');showToast('Error: '+e.message);}
-  hideLoading();
+const cuentaId=parseInt(document.getElementById('abonar-cuenta-id').value);
+const monto=parseFloat(document.getElementById('abonar-monto').value)||0;
+const fecha=document.getElementById('abonar-fecha').value;
+const nota=cap(document.getElementById('abonar-nota').value.trim());
+const cuenta=cuentas.find(c=>c.id===cuentaId);
+if(!monto||monto<=0){alert('Ingresa un monto válido');return;}
+showLoading('Registrando abono...');setSync('loading');
+try{
+const pago=first(await sbFetch('pagos','POST',{cuenta_id:cuentaId,fecha,monto,nota:nota||null}));pagos.push(pago);
+const na=parseFloat(cuenta.monto_abonado||0)+monto;
+const ns=Math.max(0,parseFloat(cuenta.total_fiado||0)-na);
+const nuevoEstado=ns===0?'pagada':'pendiente';
+await sbFetch(`cuentas?id=eq.${cuentaId}`,'PATCH',{monto_abonado:na,saldo:ns,estado:nuevoEstado,fecha_abono:fecha});
+cuenta.monto_abonado=na;cuenta.saldo=ns;cuenta.estado=nuevoEstado;cuenta.fecha_abono=fecha;
+if(nuevoEstado==='pendiente'){
+const nCuentas=cuentas.filter(c=>c.cliente_id===cuenta.cliente_id).length;
+const nuevaCuenta=first(await sbFetch('cuentas','POST',{
+cliente_id:cuenta.cliente_id,numero:nCuentas+1,
+estado:'activa',total_fiado:0,monto_abonado:0,saldo:0
+}));
+cuentas.push(nuevaCuenta);
+}
+if(nuevoEstado==='pagada'){
+const tieneDeuda=cuentas.some(c=>c.cliente_id===cuenta.cliente_id&&(c.estado==='activa'||c.estado==='pendiente')&&c.id!==cuentaId);
+if(!tieneDeuda){
+await sbFetch(`clientes?id=eq.${cuenta.cliente_id}`,'PATCH',{estado:'pagado'});
+const cli=clientes.find(c=>c.id===cuenta.cliente_id);if(cli)cli.estado='pagado';
+}
+}
+setSync('on');
+showToast(nuevoEstado==='pagada'?'✓ Cuenta pagada completamente':'✓ Abono registrado — nueva cuenta activa creada');
+cerrarModal('modal-abonar');renderClientes();updateHeader();
+}catch(e){setSync('off');showToast('Error: '+e.message);}
+hideLoading();
 }
 async function marcarPagado(clienteId){
-  const cli=clientes.find(c=>c.id===clienteId);
-  if(!confirm(`¿Marcar a ${cli.nombre} como pagado?`))return;
-  showLoading('Registrando...');setSync('loading');
-  try{
-    await sbFetch(`clientes?id=eq.${clienteId}`,'PATCH',{estado:'pagado'});
-    cli.estado='pagado';
-    const cc=cuentas.filter(c=>c.cliente_id===clienteId&&c.estado==='activa');
-    for(const c of cc){
-      await sbFetch(`cuentas?id=eq.${c.id}`,'PATCH',{estado:'pagada'});
-      c.estado='pagada';
-    }
-    setSync('on');showToast('✓ '+cli.nombre+' marcado como pagado');
-    renderClientes();updateHeader();
-  }catch(e){setSync('off');showToast('Error: '+e.message);}
-  hideLoading();
+const cli=clientes.find(c=>c.id===clienteId);
+if(!confirm(`¿Marcar a ${cli.nombre} como pagado?`))return;
+showLoading('Registrando...');setSync('loading');
+try{
+await sbFetch(`clientes?id=eq.${clienteId}`,'PATCH',{estado:'pagado'});
+cli.estado='pagado';
+const cc=cuentas.filter(c=>c.cliente_id===clienteId&&c.estado==='activa');
+for(const c of cc){
+await sbFetch(`cuentas?id=eq.${c.id}`,'PATCH',{estado:'pagada'});
+c.estado='pagada';
+}
+setSync('on');showToast('✓ '+cli.nombre+' marcado como pagado');
+renderClientes();updateHeader();
+}catch(e){setSync('off');showToast('Error: '+e.message);}
+hideLoading();
 }
 function renderPagados(){
-  const pg=clientes.filter(c=>c.estado==='pagado').sort((a,b)=>a.nombre.localeCompare(b.nombre));
-  const cont=document.getElementById('lista-pagados');
-  if(!pg.length){cont.innerHTML='<p class="empty">Aún no hay clientes pagados</p>';return;}
-  cont.innerHTML=pg.map(c=>{
-    const cc=cuentas.filter(x=>x.cliente_id===c.id);
-    const total=cc.reduce((s,x)=>s+parseFloat(x.total_fiado||0),0);
-    const ul=cc.filter(x=>x.fecha_abono).sort((a,b)=>b.fecha_abono.localeCompare(a.fecha_abono))[0];
-    return `<div class="cliente-card">
-      <div class="cliente-header" onclick="toggleCliente(${c.id})">
-        <div class="cliente-avatar" style="background:${colorAvatar(c.nombre)}">${c.nombre.charAt(0).toUpperCase()}</div>
-        <div class="cliente-info">
-          <div class="cliente-name">${c.nombre} <span class="tag-pagado">Pagado</span></div>
-          <div class="cliente-meta">${cc.length} cuenta${cc.length!==1?'s':''} · ${ul?'Último pago: '+fechaDisplay(ul.fecha_abono):''}</div>
-        </div>
-        <div class="cliente-deuda"><div style="font-size:17px;font-weight:700;color:var(--green);font-family:var(--num)">${fmt(total)}</div><div class="deuda-label">total pagado</div></div>
-      </div>
-      <div class="cliente-body" id="body-${c.id}">${renderCuentasCliente(c.id)}</div>
-    </div>`;
-  }).join('');
+const pg=clientes.filter(c=>c.estado==='pagado').sort((a,b)=>a.nombre.localeCompare(b.nombre));
+const cont=document.getElementById('lista-pagados');
+if(!pg.length){cont.innerHTML='<p class="empty">Aún no hay clientes pagados</p>';return;}
+cont.innerHTML=pg.map(c=>{
+const cc=cuentas.filter(x=>x.cliente_id===c.id);
+const total=cc.reduce((s,x)=>s+parseFloat(x.total_fiado||0),0);
+const ul=cc.filter(x=>x.fecha_abono).sort((a,b)=>b.fecha_abono.localeCompare(a.fecha_abono))[0];
+return `<div class="cliente-card">
+<div class="cliente-header" onclick="toggleCliente(${c.id})">
+<div class="cliente-avatar" style="background:${colorAvatar(c.nombre)}">${c.nombre.charAt(0).toUpperCase()}</div>
+<div class="cliente-info">
+<div class="cliente-name">${c.nombre} <span class="tag-pagado">Pagado</span></div>
+<div class="cliente-meta">${cc.length} cuenta${cc.length!==1?'s':''} · ${ul?'Último pago: '+fechaDisplay(ul.fecha_abono):''}</div>
+</div>
+<div class="cliente-deuda"><div style="font-size:17px;font-weight:700;color:var(--green);font-family:var(--num)">${fmt(total)}</div><div class="deuda-label">total pagado</div></div>
+</div>
+<div class="cliente-body" id="body-${c.id}">${renderCuentasCliente(c.id)}</div>
+</div>`;
+}).join('');
 }
 function abrirModalEdit(vid,cid){
-  const v=visitas.find(x=>x.id===vid);
-  document.getElementById('edit-visita-id').value=vid;document.getElementById('edit-cuenta-id').value=cid;document.getElementById('edit-fecha').value=v.fecha;
-  const cont=document.getElementById('edit-items-container');cont.innerHTML='';
-  items.filter(it=>it.visita_id===vid).forEach(it=>addEditItem(it));recalcEditTotal();
-  document.getElementById('modal-edit').style.display='flex';
+const v=visitas.find(x=>x.id===vid);
+document.getElementById('edit-visita-id').value=vid;document.getElementById('edit-cuenta-id').value=cid;document.getElementById('edit-fecha').value=v.fecha;
+const cont=document.getElementById('edit-items-container');cont.innerHTML='';
+items.filter(it=>it.visita_id===vid).forEach(it=>addEditItem(it));recalcEditTotal();
+document.getElementById('modal-edit').style.display='flex';
 }
 function addEditItem(it=null){
-  const cont=document.getElementById('edit-items-container');
-  const iid='ei-'+Date.now()+'-'+Math.random().toString(36).slice(2,5);
-  const div=document.createElement('div');div.className='item-row';div.id=iid;
-  div.innerHTML=`<input type="text" value="${it?it.producto:''}" placeholder="Producto" oninput="recalcEditTotal()">
-    <input type="number" value="${it?fmtNum(it.precio):''}" placeholder="S/ precio" step="0.01" oninput="recalcEditTotal()">
-    <button class="item-remove" onclick="document.getElementById('${iid}').remove();recalcEditTotal()">×</button>`;
-  cont.appendChild(div);autoCapInput(div.querySelector('input[type=text]'));
+const cont=document.getElementById('edit-items-container');
+const iid='ei-'+Date.now()+'-'+Math.random().toString(36).slice(2,5);
+const div=document.createElement('div');div.className='item-row';div.id=iid;
+div.innerHTML=`<input type="text" value="${it?it.producto:''}" placeholder="Producto" oninput="recalcEditTotal()">
+<input type="number" value="${it?fmtNum(it.precio):''}" placeholder="S/ precio" step="0.01" oninput="recalcEditTotal()">
+<button class="item-remove" onclick="document.getElementById('${iid}').remove();recalcEditTotal()">×</button>`;
+cont.appendChild(div);autoCapInput(div.querySelector('input[type=text]'));
 }
 function recalcEditTotal(){let t=0;document.querySelectorAll('#edit-items-container input[type=number]').forEach(i=>t+=parseFloat(i.value)||0);document.getElementById('edit-total-display').textContent=fmt(t);}
 async function guardarEdit(){
-  const vid=parseInt(document.getElementById('edit-visita-id').value),cid=parseInt(document.getElementById('edit-cuenta-id').value),fecha=document.getElementById('edit-fecha').value;
-  const ni=[];document.querySelectorAll('#edit-items-container .item-row').forEach(row=>{const[ip,ipr]=row.querySelectorAll('input');const prod=cap(ip.value.trim()),prec=parseFloat(ipr.value)||0;if(prod&&prec!==0)ni.push({producto:prod,precio:prec});});
-  if(!ni.length){alert('Agrega al menos un producto');return;}
-  const nt=ni.reduce((s,it)=>s+it.precio,0),ta=parseFloat(visitas.find(v=>v.id===vid)?.total_visita||0);
-  showLoading('Guardando...');setSync('loading');
-  try{
-    await sbFetch(`visitas?id=eq.${vid}`,'PATCH',{fecha,total_visita:nt});const v=visitas.find(v=>v.id===vid);v.fecha=fecha;v.total_visita=nt;
-    const cuenta=cuentas.find(c=>c.id===cid);
-    const ntc=parseFloat(cuenta.total_fiado||0)-ta+nt,ns=Math.max(0,ntc-parseFloat(cuenta.monto_abonado||0));
-    await sbFetch(`cuentas?id=eq.${cid}`,'PATCH',{total_fiado:ntc,saldo:ns});cuenta.total_fiado=ntc;cuenta.saldo=ns;
-    await sbFetch(`items_visita?visita_id=eq.${vid}`,'DELETE');items=items.filter(it=>it.visita_id!==vid);
-    for(const it of ni)items.push(first(await sbFetch('items_visita','POST',{visita_id:vid,producto:it.producto,precio:it.precio})));
-    setSync('on');showToast('✓ Visita actualizada');cerrarModal('modal-edit');renderClientes();updateHeader();
-  }catch(e){setSync('off');showToast('Error: '+e.message);}
-  hideLoading();
+const vid=parseInt(document.getElementById('edit-visita-id').value),cid=parseInt(document.getElementById('edit-cuenta-id').value),fecha=document.getElementById('edit-fecha').value;
+const ni=[];document.querySelectorAll('#edit-items-container .item-row').forEach(row=>{const[ip,ipr]=row.querySelectorAll('input');const prod=cap(ip.value.trim()),prec=parseFloat(ipr.value)||0;if(prod&&prec!==0)ni.push({producto:prod,precio:prec});});
+if(!ni.length){alert('Agrega al menos un producto');return;}
+const nt=ni.reduce((s,it)=>s+it.precio,0),ta=parseFloat(visitas.find(v=>v.id===vid)?.total_visita||0);
+showLoading('Guardando...');setSync('loading');
+try{
+await sbFetch(`visitas?id=eq.${vid}`,'PATCH',{fecha,total_visita:nt});const v=visitas.find(v=>v.id===vid);v.fecha=fecha;v.total_visita=nt;
+const cuenta=cuentas.find(c=>c.id===cid);
+const ntc=parseFloat(cuenta.total_fiado||0)-ta+nt,ns=Math.max(0,ntc-parseFloat(cuenta.monto_abonado||0));
+await sbFetch(`cuentas?id=eq.${cid}`,'PATCH',{total_fiado:ntc,saldo:ns});cuenta.total_fiado=ntc;cuenta.saldo=ns;
+await sbFetch(`items_visita?visita_id=eq.${vid}`,'DELETE');items=items.filter(it=>it.visita_id!==vid);
+for(const it of ni)items.push(first(await sbFetch('items_visita','POST',{visita_id:vid,producto:it.producto,precio:it.precio})));
+setSync('on');showToast('✓ Visita actualizada');cerrarModal('modal-edit');renderClientes();updateHeader();
+}catch(e){setSync('off');showToast('Error: '+e.message);}
+hideLoading();
 }
 async function eliminarVisita(){
-  const vid=parseInt(document.getElementById('edit-visita-id').value),cid=parseInt(document.getElementById('edit-cuenta-id').value);
-  if(!confirm('¿Eliminar esta visita?'))return;
-  showLoading('Eliminando...');setSync('loading');
-  try{
-    const tv=parseFloat(visitas.find(v=>v.id===vid)?.total_visita||0);
-    await sbFetch(`items_visita?visita_id=eq.${vid}`,'DELETE');await sbFetch(`visitas?id=eq.${vid}`,'DELETE');
-    items=items.filter(it=>it.visita_id!==vid);visitas=visitas.filter(v=>v.id!==vid);
-    const cuenta=cuentas.find(c=>c.id===cid);
-    const nt=Math.max(0,parseFloat(cuenta.total_fiado||0)-tv),ns=Math.max(0,nt-parseFloat(cuenta.monto_abonado||0));
-    await sbFetch(`cuentas?id=eq.${cid}`,'PATCH',{total_fiado:nt,saldo:ns});cuenta.total_fiado=nt;cuenta.saldo=ns;
-    setSync('on');showToast('Visita eliminada');cerrarModal('modal-edit');renderClientes();updateHeader();
-  }catch(e){setSync('off');showToast('Error: '+e.message);}
-  hideLoading();
+const vid=parseInt(document.getElementById('edit-visita-id').value),cid=parseInt(document.getElementById('edit-cuenta-id').value);
+if(!confirm('¿Eliminar esta visita?'))return;
+showLoading('Eliminando...');setSync('loading');
+try{
+const tv=parseFloat(visitas.find(v=>v.id===vid)?.total_visita||0);
+await sbFetch(`items_visita?visita_id=eq.${vid}`,'DELETE');await sbFetch(`visitas?id=eq.${vid}`,'DELETE');
+items=items.filter(it=>it.visita_id!==vid);visitas=visitas.filter(v=>v.id!==vid);
+const cuenta=cuentas.find(c=>c.id===cid);
+const nt=Math.max(0,parseFloat(cuenta.total_fiado||0)-tv),ns=Math.max(0,nt-parseFloat(cuenta.monto_abonado||0));
+await sbFetch(`cuentas?id=eq.${cid}`,'PATCH',{total_fiado:nt,saldo:ns});cuenta.total_fiado=nt;cuenta.saldo=ns;
+setSync('on');showToast('Visita eliminada');cerrarModal('modal-edit');renderClientes();updateHeader();
+}catch(e){setSync('off');showToast('Error: '+e.message);}
+hideLoading();
 }
 function verRecibo(cuentaId){
-  reciboData={cuentaId};
-  const cuenta=cuentas.find(c=>c.id===cuentaId),cli=clientes.find(c=>c.id===cuenta.cliente_id);
-  const pg=pagos.filter(p=>p.cuenta_id===cuentaId);
-  const vs=visitas.filter(v=>v.cuenta_id===cuentaId).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
-  const pf={};vs.forEach(v=>{(pf[v.fecha]=pf[v.fecha]||[]).push(v);});
-  const diasHtml=Object.entries(pf).map(([fecha,vsd])=>{
-    const td=vsd.reduce((s,v)=>s+parseFloat(v.total_visita||0),0),nv=vsd.length;
-    const vh=vsd.map((v,idx)=>{
-      const its=items.filter(it=>it.visita_id===v.id);
-      const ph=its.map(it=>`<div class="rec-prod-item"><span class="rec-prod-name">${it.producto}</span><span class="rec-prod-price">S/ ${fmtNum(it.precio)}</span></div>`).join('');
-      const lh=nv>1?`<div class="rec-visita-label">Visita ${idx+1}</div>`:'';
-      const sh=nv>1?`<div class="rec-visita-sub">subtotal <span>S/ ${fmtNum(v.total_visita)}</span></div>`:'';
-      return `<div class="rec-visita">${lh}<div class="rec-productos">${ph}</div>${sh}</div>`;
-    }).join('');
-    const nl=nv>1?`<span class="rec-dia-nvisitas">${nv} visitas</span>`:'';
-    return `<div class="rec-dia"><div class="rec-dia-header"><span><span class="rec-dia-fecha">${fechaDisplay(fecha)}</span>${nl}</span><span class="rec-dia-total">S/ ${fmtNum(td)}</span></div>${vh}</div>`;
-  }).join('');
-  const abHtml=pg.length?`<div class="rec-abono-section"><div class="rec-abono-title">Abonos realizados</div>${pg.map(p=>`<div class="rec-abono-row"><span>${fechaDisplay(p.fecha)}${p.nota?' · '+p.nota:''}</span><span>− ${fmt(p.monto)}</span></div>`).join('')}</div>`:'';
-  document.getElementById('recibo-content').innerHTML=`
-    <div class="rec-titulo">Estado de Cuenta — Fiado</div>
-    <hr class="rec-hr">
-    <div class="rec-cliente"><strong>Cliente:</strong> ${cli.nombre}.</div>
-    ${diasHtml}${abHtml}
-    <div class="rec-total-wrap"><span class="rec-total-label">Saldo a pagar</span><span class="rec-total-monto">S/ ${fmtNum(cuenta.saldo)}</span></div>
-    <div class="rec-gracias">Gracias por su preferencia 🙌</div>`;
+reciboData={cuentaId};
+const cuenta=cuentas.find(c=>c.id===cuentaId),cli=clientes.find(c=>c.id===cuenta.cliente_id);
+const pg=pagos.filter(p=>p.cuenta_id===cuentaId);
+const vs=visitas.filter(v=>v.cuenta_id===cuentaId).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+const pf={};vs.forEach(v=>{(pf[v.fecha]=pf[v.fecha]||[]).push(v);});
+const diasHtml=Object.entries(pf).map(([fecha,vsd])=>{
+const td=vsd.reduce((s,v)=>s+parseFloat(v.total_visita||0),0),nv=vsd.length;
+const vh=vsd.map((v,idx)=>{
+const its=items.filter(it=>it.visita_id===v.id);
+const ph=its.map(it=>`<div class="rec-prod-item"><span class="rec-prod-name">${it.producto}</span><span class="rec-prod-price">S/ ${fmtNum(it.precio)}</span></div>`).join('');
+const lh=nv>1?`<div class="rec-visita-label">Visita ${idx+1}</div>`:'';
+const sh=nv>1?`<div class="rec-visita-sub">subtotal <span>S/ ${fmtNum(v.total_visita)}</span></div>`:'';
+return `<div class="rec-visita">${lh}<div class="rec-productos">${ph}</div>${sh}</div>`;
+}).join('');
+const nl=nv>1?`<span class="rec-dia-nvisitas">${nv} visitas</span>`:'';
+return `<div class="rec-dia"><div class="rec-dia-header"><span><span class="rec-dia-fecha">${fechaDisplay(fecha)}</span>${nl}</span><span class="rec-dia-total">S/ ${fmtNum(td)}</span></div>${vh}</div>`;
+}).join('');
+const abHtml=pg.length?`<div class="rec-abono-section"><div class="rec-abono-title">Abonos realizados</div>${pg.map(p=>`<div class="rec-abono-row"><span>${fechaDisplay(p.fecha)}${p.nota?' · '+p.nota:''}</span><span>− ${fmt(p.monto)}</span></div>`).join('')}</div>`:'';
+document.getElementById('recibo-content').innerHTML=`
+<div class="rec-titulo">Estado de Cuenta — Fiado</div>
+<hr class="rec-hr">
+<div class="rec-cliente"><strong>Cliente:</strong> ${cli.nombre}.</div>
+${diasHtml}${abHtml}
+<div class="rec-total-wrap"><span class="rec-total-label">Saldo a pagar</span><span class="rec-total-monto">S/ ${fmtNum(cuenta.saldo)}</span></div>
+<div class="rec-gracias">Gracias por su preferencia 🙌</div>`;
+document.getElementById('recibo-titulo').textContent=`Recibo — ${cli.nombre} · Cuenta #${cuenta.numero}`;
+document.getElementById('btn-wa-recibo').style.display=cli.telefono?'block':'none';
+document.getElementById('modal-recibo').style.display='flex';
 
-  document.getElementById('recibo-titulo').textContent=`Recibo — ${cli.nombre} · Cuenta #${cuenta.numero}`;
-  document.getElementById('btn-wa-recibo').style.display=cli.telefono?'block':'none';
-  document.getElementById('modal-recibo').style.display='flex';
-
-  // Subir imagen a Supabase Storage para que el bot la pueda enviar
-  setTimeout(async()=>{
-    try{
-      const canvas=await html2canvas(document.getElementById('recibo-content'),{backgroundColor:'#fff',scale:2,useCORS:true});
-      canvas.toBlob(async blob=>{
-        const fileName=`recibo-cliente-${cuenta.cliente_id}.png`;
-        await fetch(`${SB_URL}/storage/v1/object/recibos/${fileName}`,{
-          method:'POST',
-          headers:{
-            'apikey':SB_KEY,
-            'Authorization':'Bearer '+SB_KEY,
-            'Content-Type':'image/png',
-            'x-upsert':'true'
-          },
-          body:blob
-        });
-      },'image/png');
-    }catch(e){ /* silencioso */ }
-  },500);
+// ============================================================
+// SUBIR IMAGEN A SUPABASE STORAGE — FIX: PUT en vez de POST
+// ============================================================
+setTimeout(async()=>{
+try{
+const canvas=await html2canvas(document.getElementById('recibo-content'),{backgroundColor:'#fff',scale:2,useCORS:true});
+canvas.toBlob(async blob=>{
+const fileName=`recibo-cliente-${cuenta.cliente_id}.png`;
+const uploadRes=await fetch(`${SB_URL}/storage/v1/object/recibos/${fileName}`,{
+method:'PUT',
+headers:{
+'apikey':SB_KEY,
+'Authorization':'Bearer '+SB_KEY,
+'Content-Type':'image/png',
+'x-upsert':'true'
+},
+body:blob
+});
+if(!uploadRes.ok){
+const errTxt=await uploadRes.text();
+console.error('Error subiendo recibo a Storage:',uploadRes.status,errTxt);
+showToast('⚠️ Error al subir recibo: '+uploadRes.status);
+}else{
+console.log('✓ Recibo subido a Storage:',fileName);
+}
+},'image/png');
+}catch(e){
+console.error('Error en upload de recibo:',e);
+}
+},500);
 }
 async function descargarRecibo(){
-  showLoading('Generando imagen...');
-  try{
-    const cuenta=cuentas.find(c=>c.id===reciboData.cuentaId),cli=clientes.find(c=>c.id===cuenta.cliente_id);
-    const canvas=await html2canvas(document.getElementById('recibo-content'),{backgroundColor:'#fff',scale:2,useCORS:true});
-    const link=document.createElement('a');link.download=`recibo-${cli.nombre.replace(/\s+/g,'-')}-cuenta${cuenta.numero}.png`;link.href=canvas.toDataURL('image/png');link.click();
-    showToast('✓ Imagen guardada');
-  }catch(e){showToast('Error al generar imagen');}
-  hideLoading();
+showLoading('Generando imagen...');
+try{
+const cuenta=cuentas.find(c=>c.id===reciboData.cuentaId),cli=clientes.find(c=>c.id===cuenta.cliente_id);
+const canvas=await html2canvas(document.getElementById('recibo-content'),{backgroundColor:'#fff',scale:2,useCORS:true});
+const link=document.createElement('a');link.download=`recibo-${cli.nombre.replace(/\s+/g,'-')}-cuenta${cuenta.numero}.png`;link.href=canvas.toDataURL('image/png');link.click();
+showToast('✓ Imagen guardada');
+}catch(e){showToast('Error al generar imagen');}
+hideLoading();
 }
 async function compartirWA(){
-  const cuenta=cuentas.find(c=>c.id===reciboData.cuentaId),cli=clientes.find(c=>c.id===cuenta.cliente_id);
-  if(!cli.telefono){showToast('Este cliente no tiene teléfono');return;}
-  showLoading('Preparando...');
-  try{
-    const canvas=await html2canvas(document.getElementById('recibo-content'),{backgroundColor:'#fff',scale:2,useCORS:true});
-    canvas.toBlob(async blob=>{
-      hideLoading();const file=new File([blob],'recibo.png',{type:'image/png'});
-      if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'Recibo — '+cli.nombre});}
-      else{const msg=encodeURIComponent(`Hola ${cli.nombre}, su saldo pendiente (Cuenta #${cuenta.numero}) es de S/ ${fmtNum(cuenta.saldo)}. Gracias.`);window.open(`https://wa.me/51${cli.telefono.replace(/\D/g,'')}?text=${msg}`,'_blank');showToast('Guarda la imagen y adjúntala en WhatsApp');}
-    },'image/png');
-  }catch(e){hideLoading();showToast('Error: '+e.message);}
+const cuenta=cuentas.find(c=>c.id===reciboData.cuentaId),cli=clientes.find(c=>c.id===cuenta.cliente_id);
+if(!cli.telefono){showToast('Este cliente no tiene teléfono');return;}
+showLoading('Preparando...');
+try{
+const canvas=await html2canvas(document.getElementById('recibo-content'),{backgroundColor:'#fff',scale:2,useCORS:true});
+canvas.toBlob(async blob=>{
+hideLoading();const file=new File([blob],'recibo.png',{type:'image/png'});
+if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'Recibo — '+cli.nombre});}
+else{const msg=encodeURIComponent(`Hola ${cli.nombre}, su saldo pendiente (Cuenta #${cuenta.numero}) es de S/ ${fmtNum(cuenta.saldo)}. Gracias.`);window.open(`https://wa.me/51${cli.telefono.replace(/\D/g,'')}?text=${msg}`,'_blank');showToast('Guarda la imagen y adjúntala en WhatsApp');}
+},'image/png');
+}catch(e){hideLoading();showToast('Error: '+e.message);}
 }
 function setFiltro(tipo,btn){
-  filtroActual=tipo;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  document.getElementById('filter-range').classList.toggle('show',tipo==='rango');
-  renderAnalisis();
+filtroActual=tipo;
+document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+document.getElementById('filter-range').classList.toggle('show',tipo==='rango');
+renderAnalisis();
 }
 function getRango(){
-  const hoy=today(),ahora=new Date();
-  if(filtroActual==='hoy')return{desde:hoy,hasta:hoy};
-  if(filtroActual==='semana'){const d=new Date(ahora);d.setDate(d.getDate()-6);return{desde:d.toISOString().split('T')[0],hasta:hoy};}
-  if(filtroActual==='mes')return{desde:`${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,'0')}-01`,hasta:hoy};
-  return{desde:document.getElementById('range-desde').value||hoy,hasta:document.getElementById('range-hasta').value||hoy};
+const hoy=today(),ahora=new Date();
+if(filtroActual==='hoy')return{desde:hoy,hasta:hoy};
+if(filtroActual==='semana'){const d=new Date(ahora);d.setDate(d.getDate()-6);return{desde:d.toISOString().split('T')[0],hasta:hoy};}
+if(filtroActual==='mes')return{desde:`${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,'0')}-01`,hasta:hoy};
+return{desde:document.getElementById('range-desde').value||hoy,hasta:document.getElementById('range-hasta').value||hoy};
 }
 function renderAnalisis(){
-  const{desde,hasta}=getRango();
-  const vf=visitas.filter(v=>v.fecha>=desde&&v.fecha<=hasta);
-  const tf=vf.reduce((s,v)=>s+parseFloat(v.total_visita||0),0);
-
-  // Agrupar visitas por fecha, ordenadas más reciente primero
-  const porFecha={};
-  vf.forEach(v=>{(porFecha[v.fecha]=porFecha[v.fecha]||[]).push(v);});
-  const diasOrdenados=Object.entries(porFecha).sort((a,b)=>b[0].localeCompare(a[0]));
-
-  const detHtml=diasOrdenados.length ? diasOrdenados.map(([fecha,vsDelDia])=>{
-    const totalDia=vsDelDia.reduce((s,v)=>s+parseFloat(v.total_visita||0),0);
-
-    // Ordenar visitas por cliente nombre
-    const vsOrdenadas=[...vsDelDia].sort((a,b)=>{
-      const ca=clientes.find(c=>c.id===(cuentas.find(cc=>cc.id===a.cuenta_id)||{}).cliente_id);
-      const cb=clientes.find(c=>c.id===(cuentas.find(cc=>cc.id===b.cuenta_id)||{}).cliente_id);
-      return (ca?.nombre||'').localeCompare(cb?.nombre||'');
-    });
-
-    const visitasHtml=vsOrdenadas.map(v=>{
-      const cuenta=cuentas.find(c=>c.id===v.cuenta_id);
-      const cli=cuenta?clientes.find(c=>c.id===cuenta.cliente_id):null;
-      const its=items.filter(it=>it.visita_id===v.id);
-      const itsHtml=its.map(it=>
-        `<div class="visita-item-line"><span>${it.producto}</span><span>${fmt(it.precio)}</span></div>`
-      ).join('');
-      return `
-        <div class="visita-row">
-          <div class="visita-row-header" onclick="toggleVI('av-${v.id}')">
-            <div>
-              <div class="visita-label-txt" style="font-size:13px;font-weight:700">${cli?cli.nombre:'—'}</div>
-              <div class="visita-nprod">${its.length} producto${its.length!==1?'s':''} — toca para ver</div>
-            </div>
-            <span class="visita-monto">${fmt(v.total_visita)}</span>
-          </div>
-          <div class="visita-items-list" id="av-${v.id}">${itsHtml}</div>
-          <div class="visita-edit-bar">
-            <button class="btn-sm" onclick="abrirModalEdit(${v.id},${v.cuenta_id})">✎ Editar</button>
-          </div>
-        </div>`;
-    }).join('');
-
-    return `
-      <div class="cliente-card" style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border)">
-          <span style="font-size:13px;font-weight:700;font-family:var(--num)">${fechaDisplay(fecha)}</span>
-          <span style="font-size:13px;font-weight:700;color:var(--red);font-family:var(--num)">${fmt(totalDia)}</span>
-        </div>
-        ${visitasHtml}
-      </div>`;
-  }).join('') : '<p class="empty">Sin movimientos en este período</p>';
-
-  document.getElementById('analisis-content').innerHTML=`
-    <div class="stat-grid">
-      <div class="stat-card"><div class="stat-label">Total fiado</div><div class="stat-value red">${fmt(tf)}</div></div>
-      <div class="stat-card"><div class="stat-label">Visitas</div><div class="stat-value purple">${vf.length}</div></div>
-      <div class="stat-card"><div class="stat-label">Clientes activos</div><div class="stat-value amber">${cuentas.filter(c=>c.estado==='activa').length}</div></div>
-      <div class="stat-card"><div class="stat-label">Días con fiado</div><div class="stat-value" style="color:var(--blue)">${diasOrdenados.length}</div></div>
-    </div>
-    ${detHtml}`;
+const{desde,hasta}=getRango();
+const vf=visitas.filter(v=>v.fecha>=desde&&v.fecha<=hasta);
+const tf=vf.reduce((s,v)=>s+parseFloat(v.total_visita||0),0);
+const porFecha={};
+vf.forEach(v=>{(porFecha[v.fecha]=porFecha[v.fecha]||[]).push(v);});
+const diasOrdenados=Object.entries(porFecha).sort((a,b)=>b[0].localeCompare(a[0]));
+const detHtml=diasOrdenados.length ? diasOrdenados.map(([fecha,vsDelDia])=>{
+const totalDia=vsDelDia.reduce((s,v)=>s+parseFloat(v.total_visita||0),0);
+const vsOrdenadas=[...vsDelDia].sort((a,b)=>{
+const ca=clientes.find(c=>c.id===(cuentas.find(cc=>cc.id===a.cuenta_id)||{}).cliente_id);
+const cb=clientes.find(c=>c.id===(cuentas.find(cc=>cc.id===b.cuenta_id)||{}).cliente_id);
+return (ca?.nombre||'').localeCompare(cb?.nombre||'');
+});
+const visitasHtml=vsOrdenadas.map(v=>{
+const cuenta=cuentas.find(c=>c.id===v.cuenta_id);
+const cli=cuenta?clientes.find(c=>c.id===cuenta.cliente_id):null;
+const its=items.filter(it=>it.visita_id===v.id);
+const itsHtml=its.map(it=>
+`<div class="visita-item-line"><span>${it.producto}</span><span>${fmt(it.precio)}</span></div>`
+).join('');
+return `
+<div class="visita-row">
+<div class="visita-row-header" onclick="toggleVI('av-${v.id}')">
+<div>
+<div class="visita-label-txt" style="font-size:13px;font-weight:700">${cli?cli.nombre:'—'}</div>
+<div class="visita-nprod">${its.length} producto${its.length!==1?'s':''} — toca para ver</div>
+</div>
+<span class="visita-monto">${fmt(v.total_visita)}</span>
+</div>
+<div class="visita-items-list" id="av-${v.id}">${itsHtml}</div>
+<div class="visita-edit-bar">
+<button class="btn-sm" onclick="abrirModalEdit(${v.id},${v.cuenta_id})">✎ Editar</button>
+</div>
+</div>`;
+}).join('');
+return `
+<div class="cliente-card" style="margin-bottom:10px">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border)">
+<span style="font-size:13px;font-weight:700;font-family:var(--num)">${fechaDisplay(fecha)}</span>
+<span style="font-size:13px;font-weight:700;color:var(--red);font-family:var(--num)">${fmt(totalDia)}</span>
+</div>
+${visitasHtml}
+</div>`;
+}).join('') : '<p class="empty">Sin movimientos en este período</p>';
+document.getElementById('analisis-content').innerHTML=`
+<div class="stat-grid">
+<div class="stat-card"><div class="stat-label">Total fiado</div><div class="stat-value red">${fmt(tf)}</div></div>
+<div class="stat-card"><div class="stat-label">Visitas</div><div class="stat-value purple">${vf.length}</div></div>
+<div class="stat-card"><div class="stat-label">Clientes activos</div><div class="stat-value amber">${cuentas.filter(c=>c.estado==='activa').length}</div></div>
+<div class="stat-card"><div class="stat-label">Días con fiado</div><div class="stat-value" style="color:var(--blue)">${diasOrdenados.length}</div></div>
+</div>
+${detHtml}`;
 }
 // ============================================================
-// IMPRIMIR VÍA RAWBT — comparte imagen como archivo
+// IMPRIMIR VÍA RAWBT
 // ============================================================
 function imprimirRawBT(){
-  const cuenta=cuentas.find(c=>c.id===reciboData.cuentaId);
-  const cli=clientes.find(c=>c.id===cuenta.cliente_id);
-
-  const W=32, C1=15, C2=16;
-  const sep=(c='-')=>c.repeat(W);
-  const ctr=s=>{s=s.slice(0,W);const p=Math.floor((W-s.length)/2);return ' '.repeat(p)+s;};
-  const lineRL=(l,r)=>{const max=W-r.length-1;return l.slice(0,max).padEnd(max)+' '+r;};
-  const fmtCol=(nombre,precio,colW)=>{
-    const pr='S/'+fmtNum(precio);
-    const max=colW-pr.length-1;
-    return nombre.slice(0,max).padEnd(max)+' '+pr;
-  };
-  const prodRows=(its)=>{
-    const lines=[];
-    for(let i=0;i<its.length;i+=2){
-      const c1=fmtCol(its[i].producto,its[i].precio,C1);
-      const c2=its[i+1]?' '+fmtCol(its[i+1].producto,its[i+1].precio,C2):'';
-      lines.push(c1+c2);
-    }
-    return lines;
-  };
-
-  const vs=visitas.filter(v=>v.cuenta_id===cuenta.id).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
-  const pf={};vs.forEach(v=>{(pf[v.fecha]=pf[v.fecha]||[]).push(v);});
-
-  const rows=[];
-  rows.push('');
-  rows.push(ctr('ESTADO DE CUENTA'));
-  rows.push(ctr('--- FIADO ---'));
-  rows.push(sep('-'));
-  rows.push('Cliente : '+cli.nombre);
-  rows.push(sep('-'));
-
-  Object.entries(pf).forEach(([fecha,vsDelDia])=>{
-    const td=vsDelDia.reduce((s,v)=>s+parseFloat(v.total_visita||0),0);
-    rows.push('');
-    rows.push(lineRL(fechaDisplay(fecha),'S/'+fmtNum(td)));
-    rows.push(sep('.'));
-    vsDelDia.forEach((v,idx)=>{
-      const its=items.filter(it=>it.visita_id===v.id);
-      if(vsDelDia.length>1) rows.push(' Visita '+(idx+1)+':');
-      prodRows(its).forEach(r=>rows.push(r));
-      if(vsDelDia.length>1){
-        const sub=its.reduce((s,it)=>s+parseFloat(it.precio||0),0);
-        rows.push(lineRL(' Subtotal','S/'+fmtNum(sub)));
-      }
-    });
-  });
-
-  const pg=pagos.filter(p=>p.cuenta_id===cuenta.id);
-  if(pg.length){
-    rows.push('');rows.push(sep('-'));
-    rows.push(ctr('ABONOS'));
-    pg.forEach(p=>rows.push(lineRL(fechaDisplay(p.fecha)+(p.nota?' ('+p.nota+')':''),'-S/'+fmtNum(p.monto))));
-  }
-
-  rows.push('');rows.push(sep('='));
-  rows.push(lineRL('SALDO A PAGAR','S/'+fmtNum(cuenta.saldo)));
-  rows.push(sep('='));
-  rows.push('');
-  rows.push(ctr('Gracias por su preferencia'));
-  rows.push('');rows.push('');
-
-  const texto=rows.join('\n');
-  if(navigator.share){
-    navigator.share({title:'Ticket — '+cli.nombre, text:texto})
-      .then(()=>showToast('Selecciona RawBT'))
-      .catch(e=>{ if(e.name!=='AbortError') showToast('Error: '+e.message); });
-  } else {
-    const blob=new Blob([texto],{type:'text/plain'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;a.download='ticket.prn';
-    document.body.appendChild(a);a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('Abre el archivo en RawBT');
-  }
+const cuenta=cuentas.find(c=>c.id===reciboData.cuentaId);
+const cli=clientes.find(c=>c.id===cuenta.cliente_id);
+const W=32, C1=15, C2=16;
+const sep=(c='-')=>c.repeat(W);
+const ctr=s=>{s=s.slice(0,W);const p=Math.floor((W-s.length)/2);return ' '.repeat(p)+s;};
+const lineRL=(l,r)=>{const max=W-r.length-1;return l.slice(0,max).padEnd(max)+' '+r;};
+const fmtCol=(nombre,precio,colW)=>{
+const pr='S/'+fmtNum(precio);
+const max=colW-pr.length-1;
+return nombre.slice(0,max).padEnd(max)+' '+pr;
+};
+const prodRows=(its)=>{
+const lines=[];
+for(let i=0;i<its.length;i+=2){
+const c1=fmtCol(its[i].producto,its[i].precio,C1);
+const c2=its[i+1]?' '+fmtCol(its[i+1].producto,its[i+1].precio,C2):'';
+lines.push(c1+c2);
 }
-
-// ============================================================
-// EXPORTAR RESPALDO COMPLETO EN CSV
-// ============================================================
+return lines;
+};
+const vs=visitas.filter(v=>v.cuenta_id===cuenta.id).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+const pf={};vs.forEach(v=>{(pf[v.fecha]=pf[v.fecha]||[]).push(v);});
+const rows=[];
+rows.push('');
+rows.push(ctr('ESTADO DE CUENTA'));
+rows.push(ctr('--- FIADO ---'));
+rows.push(sep('-'));
+rows.push('Cliente : '+cli.nombre);
+rows.push(sep('-'));
+Object.entries(pf).forEach(([fecha,vsDelDia])=>{
+const td=vsDelDia.reduce((s,v)=>s+parseFloat(v.total_visita||0),0);
+rows.push('');
+rows.push(lineRL(fechaDisplay(fecha),'S/'+fmtNum(td)));
+rows.push(sep('.'));
+vsDelDia.forEach((v,idx)=>{
+const its=items.filter(it=>it.visita_id===v.id);
+if(vsDelDia.length>1) rows.push(' Visita '+(idx+1)+':');
+prodRows(its).forEach(r=>rows.push(r));
+if(vsDelDia.length>1){
+const sub=its.reduce((s,it)=>s+parseFloat(it.precio||0),0);
+rows.push(lineRL(' Subtotal','S/'+fmtNum(sub)));
+}
+});
+});
+const pg=pagos.filter(p=>p.cuenta_id===cuenta.id);
+if(pg.length){
+rows.push('');rows.push(sep('-'));
+rows.push(ctr('ABONOS'));
+pg.forEach(p=>rows.push(lineRL(fechaDisplay(p.fecha)+(p.nota?' ('+p.nota+')':''),'-S/'+fmtNum(p.monto))));
+}
+rows.push('');rows.push(sep('='));
+rows.push(lineRL('SALDO A PAGAR','S/'+fmtNum(cuenta.saldo)));
+rows.push(sep('='));
+rows.push('');rows.push(ctr('Gracias por su preferencia'));rows.push('');
+const texto=rows.join('\n');
+const uri='rawbt:text?charset=utf-8&text='+encodeURIComponent(texto);
+window.location.href=uri;
+}
 function exportarCSV(){
-  // Construir filas: una por ítem de visita con todos los datos
-  const header=['Fecha','Cliente','Telefono','Producto','Precio','Total_Visita','Estado_Cliente'];
-  const rows=[header];
-
-  visitas.forEach(v=>{
-    const cuenta=cuentas.find(c=>c.id===v.cuenta_id);
-    const cli=cuenta?clientes.find(c=>c.id===cuenta.cliente_id):null;
-    const itsDeVisita=items.filter(it=>it.visita_id===v.id);
-
-    if(itsDeVisita.length===0){
-      // Visita sin ítems — igual la exportamos
-      rows.push([
-        v.fecha,
-        cli?cli.nombre:'',
-        cli?cli.telefono||'':'',
-        '',
-        '',
-        fmtNum(v.total_visita),
-        cli?cli.estado:''
-      ]);
-    } else {
-      itsDeVisita.forEach(it=>{
-        rows.push([
-          v.fecha,
-          cli?cli.nombre:'',
-          cli?cli.telefono||'':'',
-          it.producto,
-          fmtNum(it.precio),
-          fmtNum(v.total_visita),
-          cli?cli.estado:''
-        ]);
-      });
-    }
-  });
-
-  // Convertir a CSV escapando comas y comillas
-  const escape=val=>{
-    const s=String(val||'');
-    return s.includes(',')||s.includes('"')||s.includes('\n') ? '"'+s.replace(/"/g,'""')+'"' : s;
-  };
-  const csv=rows.map(r=>r.map(escape).join(',')).join('\n');
-
-  // Descargar
-  const fecha=today();
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=`respaldo-fiados-${fecha}.csv`;
-  document.body.appendChild(a);a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast('✓ Respaldo descargado');
+const headers=['cliente','telefono','cuenta_num','cuenta_estado','fecha_visita','producto','precio','total_visita','abonos','saldo'];
+const rows=[headers.join(',')];
+clientes.forEach(cli=>{
+const cc=cuentas.filter(c=>c.cliente_id===cli.id);
+cc.forEach(cuenta=>{
+const vs2=visitas.filter(v=>v.cuenta_id===cuenta.id);
+const pg2=pagos.filter(p=>p.cuenta_id===cuenta.id);
+const totalAbonos=pg2.reduce((s,p)=>s+parseFloat(p.monto||0),0);
+if(vs2.length===0){
+rows.push([cli.nombre,cli.telefono||'',cuenta.numero,cuenta.estado,'','','',cuenta.total_fiado,totalAbonos,cuenta.saldo].join(','));
+}else{
+vs2.forEach(v=>{
+const its2=items.filter(it=>it.visita_id===v.id);
+if(its2.length===0){
+rows.push([cli.nombre,cli.telefono||'',cuenta.numero,cuenta.estado,v.fecha,'','',v.total_visita,totalAbonos,cuenta.saldo].join(','));
+}else{
+its2.forEach(it=>{
+rows.push([cli.nombre,cli.telefono||'',cuenta.numero,cuenta.estado,v.fecha,`"${it.producto}"`,it.precio,v.total_visita,totalAbonos,cuenta.saldo].join(','));
+});
 }
-
-if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+});
+}
+});
+});
+const blob=new Blob(['\uFEFF'+rows.join('\n')],{type:'text/csv;charset=utf-8'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;a.download='fiados-respaldo-'+today()+'.csv';a.click();
+URL.revokeObjectURL(url);
+showToast('✓ CSV exportado');
+}
 init();
 </script>
 </body>
