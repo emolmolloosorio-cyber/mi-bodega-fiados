@@ -544,6 +544,7 @@ await sbFetch(`cuentas?id=eq.${cuenta.id}`,'PATCH',{total_fiado:nt,saldo:ns});
 cuenta.total_fiado=nt;cuenta.saldo=ns;
 setSync('on');showToast('✓ Fiado registrado — '+fmt(totalDia));
 limpiarFormulario();renderClientes();updateHeader();swTab('fiados');
+setTimeout(()=>subirReciboSilencioso(cli.id,cuenta.id),800);
 }catch(e){setSync('off');showToast('Error: '+e.message);}
 hideLoading();
 }
@@ -684,6 +685,7 @@ const cli=clientes.find(c=>c.id===cuenta.cliente_id);if(cli)cli.estado='pagado';
 setSync('on');
 showToast(nuevoEstado==='pagada'?'✓ Cuenta pagada completamente':'✓ Abono registrado — nueva cuenta activa creada');
 cerrarModal('modal-abonar');renderClientes();updateHeader();
+if(nuevoEstado!=='pagada')setTimeout(()=>subirReciboSilencioso(cuenta.cliente_id,cuentaId),800);
 }catch(e){setSync('off');showToast('Error: '+e.message);}
 hideLoading();
 }
@@ -756,6 +758,8 @@ await sbFetch(`cuentas?id=eq.${cid}`,'PATCH',{total_fiado:ntc,saldo:ns});cuenta.
 await sbFetch(`items_visita?visita_id=eq.${vid}`,'DELETE');items=items.filter(it=>it.visita_id!==vid);
 for(const it of ni)items.push(first(await sbFetch('items_visita','POST',{visita_id:vid,producto:it.producto,precio:it.precio})));
 setSync('on');showToast('✓ Visita actualizada');cerrarModal('modal-edit');renderClientes();updateHeader();
+const cuentaEditada=cuentas.find(c=>c.id===cid);
+if(cuentaEditada)setTimeout(()=>subirReciboSilencioso(cuentaEditada.cliente_id,cid),800);
 }catch(e){setSync('off');showToast('Error: '+e.message);}
 hideLoading();
 }
@@ -812,7 +816,7 @@ try{
 const canvas=await html2canvas(document.getElementById('recibo-content'),{backgroundColor:'#fff',scale:2,useCORS:true});
 canvas.toBlob(async blob=>{
 const fileName=`recibo-cliente-${cuenta.cliente_id}.png`;
-const uploadRes=await fetch(`${SB_URL}/storage/v1/object/recibos/${fileName}`,{
+const uploadRes=await fetch(`${SB_URL}/storage/v1/object/Recibos/${fileName}`,{
 method:'PUT',
 headers:{
 'apikey':SB_KEY,
@@ -834,6 +838,55 @@ console.log('✓ Recibo subido a Storage:',fileName);
 console.error('Error en upload de recibo:',e);
 }
 },500);
+}
+async function subirReciboSilencioso(clienteId,cuentaId){
+try{
+const cuentaActual=cuentas.find(c=>c.id===cuentaId);
+const cliActual=clientes.find(c=>c.id===clienteId);
+const pg=pagos.filter(p=>p.cuenta_id===cuentaId);
+const vs=visitas.filter(v=>v.cuenta_id===cuentaId).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+const pf={};vs.forEach(v=>{(pf[v.fecha]=pf[v.fecha]||[]).push(v);});
+const diasHtml=Object.entries(pf).map(([fecha,vsd])=>{
+const td=vsd.reduce((s,v)=>s+parseFloat(v.total_visita||0),0),nv=vsd.length;
+const vh=vsd.map((v,idx)=>{
+const its=items.filter(it=>it.visita_id===v.id);
+const ph=its.map(it=>`<div class="rec-prod-item"><span class="rec-prod-name">${it.producto}</span><span class="rec-prod-price">S/ ${fmtNum(it.precio)}</span></div>`).join('');
+const lh=nv>1?`<div class="rec-visita-label">Visita ${idx+1}</div>`:'';
+const sh=nv>1?`<div class="rec-visita-sub">subtotal <span>S/ ${fmtNum(v.total_visita)}</span></div>`:'';
+return `<div class="rec-visita">${lh}<div class="rec-productos">${ph}</div>${sh}</div>`;
+}).join('');
+const nl=nv>1?`<span class="rec-dia-nvisitas">${nv} visitas</span>`:'';
+return `<div class="rec-dia"><div class="rec-dia-header"><span><span class="rec-dia-fecha">${fechaDisplay(fecha)}</span>${nl}</span><span class="rec-dia-total">S/ ${fmtNum(td)}</span></div>${vh}</div>`;
+}).join('');
+const abHtml=pg.length?`<div class="rec-abono-section"><div class="rec-abono-title">Abonos realizados</div>${pg.map(p=>`<div class="rec-abono-row"><span>${fechaDisplay(p.fecha)}${p.nota?' · '+p.nota:''}</span><span>− ${fmt(p.monto)}</span></div>`).join('')}</div>`:'';
+const tmp=document.createElement('div');
+tmp.style.cssText='position:fixed;left:-9999px;top:0;width:660px;background:#fff;padding:28px 24px;font-family:Georgia,serif;color:#1a1a1a';
+tmp.innerHTML=`
+<div class="rec-titulo">Estado de Cuenta — Fiado</div>
+<hr class="rec-hr">
+<div class="rec-cliente"><strong>Cliente:</strong> ${cliActual.nombre}.</div>
+${diasHtml}${abHtml}
+<div class="rec-total-wrap"><span class="rec-total-label">Saldo a pagar</span><span class="rec-total-monto">S/ ${fmtNum(cuentaActual.saldo)}</span></div>
+<div class="rec-gracias">Gracias por su preferencia 🙌</div>`;
+document.body.appendChild(tmp);
+const canvas=await html2canvas(tmp,{backgroundColor:'#fff',scale:2,useCORS:true});
+document.body.removeChild(tmp);
+canvas.toBlob(async blob=>{
+const fileName=`recibo-cliente-${clienteId}.png`;
+const uploadRes=await fetch(`${SB_URL}/storage/v1/object/Recibos/${fileName}`,{
+method:'PUT',
+headers:{
+'apikey':SB_KEY,
+'Authorization':'Bearer '+SB_KEY,
+'Content-Type':'image/png',
+'x-upsert':'true'
+},
+body:blob
+});
+if(uploadRes.ok)console.log('✓ Recibo auto-actualizado:',fileName);
+else console.error('Error auto-recibo:',await uploadRes.text());
+},'image/png');
+}catch(e){console.error('Error generando recibo silencioso:',e);}
 }
 async function descargarRecibo(){
 showLoading('Generando imagen...');
