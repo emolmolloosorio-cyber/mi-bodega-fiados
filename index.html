@@ -1020,7 +1020,7 @@ return `<div class="rec-dia"><div class="rec-dia-header"><span><span class="rec-
 }).join('');
 const abHtml=pg.length?`<div class="rec-abono-section"><div class="rec-abono-title">Abonos realizados</div>${pg.map(p=>`<div class="rec-abono-row"><span>${fechaDisplay(p.fecha)}${p.nota?' · '+p.nota:''}</span><span>− ${fmt(p.monto)}</span></div>`).join('')}</div>`:'';
 const tmp=document.createElement('div');
-tmp.style.cssText='position:fixed;left:-9999px;top:0;width:660px;background:#fff;padding:28px 24px;font-family:Georgia,serif;color:#1a1a1a';
+tmp.style.cssText='position:fixed;left:-9999px;top:0;width:448px;background:#fff;padding:28px 24px;font-family:Georgia,serif;color:#1a1a1a';
 tmp.innerHTML=`
 <div class="rec-titulo">Estado de Cuenta — Fiado</div>
 <hr class="rec-hr">
